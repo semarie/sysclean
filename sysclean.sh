@@ -68,14 +68,10 @@ sc_generate_expected() {
 sc_generate_actual() {
 	[[ -e "${FILELIST_ACTUAL}" ]] && return
 
-	local _prune
-	local _i
-	local _dir
-
-	_i=0
+	local _prune _i=0 _path
 
 	# build default list of files to _prune
-	for _dir in /bsd /obsd /bsd.rd /bsd.sp /bsd.mp \
+	for _path in /bsd /obsd /bsd.rd /bsd.sp /bsd.mp \
 		/dev /home /root /usr/local /usr/obj /usr/ports /usr/src \
 		/usr/xenocara /usr/xobj /var/backups /var/db /var/cache \
 		/var/cron /var/log /var/mail /var/run /var/spool/smtpd \
@@ -83,16 +79,20 @@ sc_generate_actual() {
 		/tmp; do
 
 		_prune[${_i}]='-path'	; _i=$((_i + 1))
-		_prune[${_i}]="${_dir}"	; _i=$((_i + 1))
+		_prune[${_i}]="${_path}"; _i=$((_i + 1))
 		_prune[${_i}]='-prune'	; _i=$((_i + 1))
 		_prune[${_i}]='-o'	; _i=$((_i + 1))
 	done
 
 	# add IGNORE_ACTUAL entries to _prune list
 	if [ "${SHOW_IGNORED}" = "false" -a -r "${IGNORE_ACTUAL}" ]; then
-		while read _dir; do
+		while read _path; do
+			# stripcom
+			_path="${_path%%#*}"
+			[[ -z "${_path}" ]] && continue
+
 			_prune[${_i}]='-path'	; _i=$((_i + 1))
-			_prune[${_i}]="${_dir}"	; _i=$((_i + 1))
+			_prune[${_i}]="${_path}"; _i=$((_i + 1))
 			_prune[${_i}]='-prune'	; _i=$((_i + 1))
 			_prune[${_i}]='-o'	; _i=$((_i + 1))
 		done < "${IGNORE_ACTUAL}"
