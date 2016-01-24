@@ -112,9 +112,8 @@ sc_generate_addedfiles() {
 	sc_generate_expected
 	sc_generate_actual
 
-	# extract added files	
-	diff -U1 "${FILELIST_EXPECTED}" "${FILELIST_ACTUAL}" \
-		| sed -n s,^+/,/,p \
+	# extract added files
+	comm -23 "${FILELIST_ACTUAL}" "${FILELIST_EXPECTED}" \
 		> "${FILELIST_ADDEDFILES}"
 
 	# remove used-libs from FILELIST_ADDEDFILES
