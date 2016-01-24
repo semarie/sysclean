@@ -205,7 +205,7 @@ sc_mode_packages() {
 
 # main
 PKG_DBDIR="${PKG_DBDIR:-/var/db/pkg}"
-IGNORE_ACTUAL="${PWD}/sysclean.ignore" # XXX "/etc/sysclean.ignore"
+IGNORE_ACTUAL="${0%/*}/sysclean.ignore" # XXX "/etc/sysclean.ignore"
 
 MODE=''
 SHOW_USEDLIBS='false'
