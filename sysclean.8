@@ -1,0 +1,93 @@
+.\"	$OpenBSD$
+.\"
+.\" Copyright (c) 2016 Sebastien Marie <semarie@openbsd.org>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" The following requests are required for all man pages.
+.\"
+.\" Remove `\&' from the line below.
+.Dd $Mdocdate$
+.Dt SYSCLEAN 8
+.Os
+.Sh NAME
+.Nm sysclean
+.Nd help removing obsoletes files between upgrades
+.Sh SYNOPSIS
+.Nm
+.Fl f
+.Op Fl ai
+.Nm
+.Fl p
+.Op Fl i
+.Sh DESCRIPTION
+.Nm
+is a
+.Xr ksh 1
+script designed to the administrator to help removing obsoletes files between
+upgrades.
+.Pp
+.Nm
+works by comparing a reference root directory against currently installed files.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl f
+Filename mode.
+.Nm
+will output obsoletes filenames present on the system. By default, it doesn't
+show filenames used by installed packages.
+.It Fl p
+Package mode.
+.Nm
+will output packages names using obsoletes files.
+.It Fl a
+All files.
+.Nm
+will not exclude filenames used by installed packages from output.
+.It Fl i
+With ignored.
+.Nm
+will not exclude filenames normally ignored using
+.Pa /etc/sysclean.ignore .
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width "PKG_DBDIR"
+.It Ev PKG_DBDIR
+The standard package database directory,
+.Pa /var/db/pkg ,
+can be overridden by specifying an alternative directory in the
+.Ev PKG_DBDIR
+environment variable.
+.El
+.Sh FILES
+.Bl -tag -width "/etc/sysclean.ignore"
+.It Pa /etc/sysclean.ignore
+Patterns to ignore from output. One per line. The pattern format is the same as
+.Xr find 1
+.Fl path
+option.
+.El
+.Sh SEE ALSO
+.Xr find 1 ,
+.Xr sysmerge 1
+.Sh HISTORY
+The
+.Nm
+script first appeared in
+.Ox XXX .
+.Sh AUTHORS
+.An -nosplit
+.Nm
+was written by
+.An Sebastien Marie Aq Mt semarie@openbsd.org .
