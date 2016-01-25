@@ -21,7 +21,7 @@ PATH='/bin:/sbin:/usr/bin:/usr/sbin'
 set -u
 
 usage() {
-	echo "usage: ${0##*/} [-f | -p] [-a] [-i]" >&2
+	echo "usage: ${0##*/} -f [-ai]\n       ${0##*/} -p [-i]" >&2
 	exit 1
 }
 
