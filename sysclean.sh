@@ -71,18 +71,31 @@ sc_generate_actual() {
 	local _prune _i=0 _path
 
 	# build default list of files to _prune
-	for _path in /bsd /obsd /bsd.rd /bsd.sp /bsd.mp \
-		/dev /home /root /usr/local /usr/obj /usr/ports /usr/src \
-		/usr/xenocara /usr/xobj /var/backups /var/db /var/cache \
-		/var/cron /var/log /var/mail /var/run /var/spool/smtpd \
-		/var/sysmerge /var/unbound /var/www/htdocs /var/www/logs \
-		/tmp; do
+	for _path in /boot /bsd /obsd /bsd.rd /bsd.sp /bsd.mp /dev \
+		/etc/firmware '/etc/hostname.*' '/etc/ssh/ssh_host_*' \
+		/etc/fstab /etc/myname /etc/random.seed /home /root /usr/local \
+		/usr/obj /usr/ports /usr/src /usr/xenocara /usr/xobj \
+		/var/backups /var/db /var/cache /var/cron /var/log /var/mail \
+		/var/run /var/spool/smtpd /var/sysmerge /var/unbound \
+		/var/www/htdocs /var/www/logs /tmp; do
 
 		_prune[${_i}]='-path'	; _i=$((_i + 1))
 		_prune[${_i}]="${_path}"; _i=$((_i + 1))
 		_prune[${_i}]='-prune'	; _i=$((_i + 1))
 		_prune[${_i}]='-o'	; _i=$((_i + 1))
 	done
+
+	# remove packages @sample and @rcscript from search
+	find "${PKG_DBDIR}" -name +CONTENTS -print0 \
+		| xargs -0 grep -Fh -e '@sample ' -e '@rcscript ' \
+		> "${FILELIST_ACTUAL_PKGDB}"
+
+	while read _x _path; do
+		_prune[${_i}]='-path'		; _i=$((_i + 1))
+		_prune[${_i}]="${_path%/}"	; _i=$((_i + 1))
+		_prune[${_i}]='-prune'		; _i=$((_i + 1))
+		_prune[${_i}]='-o'		; _i=$((_i + 1))
+	done < "${FILELIST_ACTUAL_PKGDB}"
 
 	# add IGNORE_ACTUAL entries to _prune list
 	if [ "${SHOW_IGNORED}" = "false" -a -r "${IGNORE_ACTUAL}" ]; then
@@ -204,7 +217,7 @@ sc_mode_packages() {
 
 # main
 PKG_DBDIR="${PKG_DBDIR:-/var/db/pkg}"
-IGNORE_ACTUAL="${0%/*}/sysclean.ignore" # XXX "/etc/sysclean.ignore"
+IGNORE_ACTUAL="/etc/sysclean.ignore"
 
 MODE=''
 SHOW_USEDLIBS='false'
@@ -234,14 +247,15 @@ shift $(( OPTIND -1 ))
 _WRKDIR=$(mktemp -d /tmp/sysclean.XXXXXXXXXX) || exit 1
 FILELIST_EXPECTED="${_WRKDIR}/expected"
 FILELIST_ACTUAL="${_WRKDIR}/actual"
+FILELIST_ACTUAL_PKGDB="${_WRKDIR}/actual-pkgdb"
 FILELIST_ADDEDFILES="${_WRKDIR}/added"
 FILELIST_OLDLIBS_DB="${_WRKDIR}/oldlibs-db"
 FILELIST_OLDLIBS_PATTERN="${_WRKDIR}/oldlibs-pattern"
 FILELIST_OLDLIBS_USED_DB="${_WRKDIR}/oldlibs-used-db"
 FILELIST_OLDLIBS_USED_PATTERN="${_WRKDIR}/oldlibs-used-pattern"
-readonly _WRKDIR FILELIST_EXPECTED FILELIST_ACTUAL FILELIST_ADDEDFILES \
-	FILELIST_OLDLIBS_DB FILELIST_OLDLIBS_PATTERN FILELIST_OLDLIBS_USED_DB \
-	FILELIST_OLDLIBS_USED_PATTERN
+readonly _WRKDIR FILELIST_EXPECTED FILELIST_ACTUAL FILELIST_ACTUAL_PKGDB \
+	FILELIST_ADDEDFILES FILELIST_OLDLIBS_DB FILELIST_OLDLIBS_PATTERN \
+	FILELIST_OLDLIBS_USED_DB FILELIST_OLDLIBS_USED_PATTERN
 
 trap 'sc_cleanup; exit 1' 0 1 2 3 13 15
 

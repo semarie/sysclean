@@ -39,6 +39,12 @@ upgrades.
 .Pp
 .Nm
 works by comparing a reference root directory against currently installed files.
+It consideres standard system files, configuration files installed by default,
+packages files from
+.Cm @rcscript
+and
+.Cm @sample
+entries in package description.
 .Pp
 .Nm
 doesn't remove any files on the system. It only reports obsoletes filenames or
@@ -84,6 +90,7 @@ option.
 .El
 .Sh SEE ALSO
 .Xr find 1 ,
+.Xr pkg_create 1 ,
 .Xr sysmerge 1
 .Sh HISTORY
 The

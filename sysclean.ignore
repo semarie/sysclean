@@ -1,0 +1,9 @@
+# sysclean.ignore example file
+#
+# each line is a pattern in find(1) -path option meaning, which may use any of
+# the special characters documented in glob(7). Slashes (`/') are treated as
+# normal characters and do not have to be matched explicitly.
+#
+/data
+/etc/*.local
+/upgrade.site
