@@ -71,13 +71,15 @@ sc_generate_actual() {
 	local _prune _i=0 _path
 
 	# build default list of files to _prune
-	for _path in /boot /bsd /obsd /bsd.rd /bsd.sp /bsd.mp /dev \
-		/etc/firmware '/etc/hostname.*' '/etc/ssh/ssh_host_*' \
-		/etc/fstab /etc/myname /etc/random.seed /home /root /usr/local \
-		/usr/obj /usr/ports /usr/src /usr/xenocara /usr/xobj \
-		/var/backups /var/db /var/cache /var/cron /var/log /var/mail \
-		/var/run /var/spool/smtpd /var/sysmerge /var/unbound \
-		/var/www/htdocs /var/www/logs /tmp; do
+	for _path in '/etc/hostname.*' '/etc/ssh/ssh_host_*' /boot /bsd \
+		/bsd.mp /bsd.rd /bsd.sp /dev /etc/firmware /etc/fstab \
+		/etc/hosts /etc/iked/local.pub /etc/iked/private/local.key \
+		/etc/isakmpd/local.pub /etc/isakmpd/private/local.pub \
+		/etc/myname /etc/pkg.conf /etc/random.seed /home /obsd /root \
+		/tmp /usr/local /usr/obj /usr/ports /usr/src /usr/xenocara \
+		/usr/xobj /var/backups /var/cache /var/cron /var/db /var/log \
+		/var/mail /var/run /var/spool/smtpd /var/sysmerge /var/unbound \
+		/var/www/htdocs /var/www/logs ; do
 
 		_prune[${_i}]='-path'	; _i=$((_i + 1))
 		_prune[${_i}]="${_path}"; _i=$((_i + 1))
