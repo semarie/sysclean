@@ -74,7 +74,7 @@ sc_generate_actual() {
 	for _path in '/etc/hostname.*' '/etc/ssh/ssh_host_*' /boot /bsd \
 		/bsd.mp /bsd.rd /bsd.sp /dev /etc/firmware /etc/fstab \
 		/etc/hosts /etc/iked/local.pub /etc/iked/private/local.key \
-		/etc/isakmpd/local.pub /etc/isakmpd/private/local.pub \
+		/etc/isakmpd/local.pub /etc/isakmpd/private/local.key \
 		/etc/myname /etc/pkg.conf /etc/random.seed /home /obsd /root \
 		/tmp /usr/local /usr/obj /usr/ports /usr/src /usr/xenocara \
 		/usr/xobj /var/backups /var/cache /var/cron /var/db /var/log \
