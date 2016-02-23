@@ -68,7 +68,7 @@ sc_generate_expected() {
 sc_generate_actual() {
 	[[ -e "${FILELIST_ACTUAL}" ]] && return
 
-	local _prune _i=0 _path
+	local _prune _i=0 _path _x
 
 	# build default list of files to _prune
 	for _path in '/etc/hostname.*' '/etc/ssh/ssh_host_*' /boot /bsd \
