@@ -57,7 +57,14 @@ sc_generate_expected() {
 
 	# / directory is expected too
 	echo / >> "${FILELIST_EXPECTED}"
-	
+
+	# packages files (outside LOCALBASE) are expected files
+	if [[ ! -r "${PKGLOCATEDB}" ]] ; then
+		pkg_info -qL `pkg_info -q` \
+			| grep -v -e '^/usr/local/' -e '^$' \
+			>> "${FILELIST_EXPECTED}"
+	fi
+
 	sort -o "${FILELIST_EXPECTED}" "${FILELIST_EXPECTED}"
 }
 
@@ -87,11 +94,10 @@ sc_generate_actual() {
 		_prune[${_i}]='-o'	; _i=$((_i + 1))
 	done
 
-	# remove packages @extra, @rcscript and @sample from search
+	# remove packages @extra and @sample from search
 	find "${PKG_DBDIR}" -name +CONTENTS -print0 \
 		| xargs -0 grep -Fh \
 			-e '@extra ' \
-			-e '@rcscript ' \
 			-e '@sample ' \
 		> "${FILELIST_ACTUAL_PKGDB}"
 
@@ -139,6 +145,24 @@ sc_generate_addedfiles() {
 		sc_generate_oldlibs_used_pattern
 
 		grep -vf "${FILELIST_OLDLIBS_USED_PATTERN}" \
+			< "${FILELIST_ADDEDFILES}" \
+			> "${FILELIST_ADDEDFILES}.tmp"
+		mv "${FILELIST_ADDEDFILES}.tmp" "${FILELIST_ADDEDFILES}"
+	fi
+
+	if [[ -r "${PKGLOCATEDB}" ]]; then
+		# extract list of files that are also in installed packages
+		sed -e 's/^/*:/' < "${FILELIST_ADDEDFILES}" \
+			| xargs locate -d "${PKGLOCATEDB}" \
+			| while IFS=':' read pkgname portname filename; do
+
+			if [[ -d "${PKG_DBDIR}/${pkgname}" ]] ; then
+				echo "^${filename}\$"
+			fi
+		done > "${FILELIST_INPACKAGES_PATTERN}"
+
+		# and remove them from FILELIST_ADDEDFILES
+		grep -vf "${FILELIST_INPACKAGES_PATTERN}" \
 			< "${FILELIST_ADDEDFILES}" \
 			> "${FILELIST_ADDEDFILES}.tmp"
 		mv "${FILELIST_ADDEDFILES}.tmp" "${FILELIST_ADDEDFILES}"
@@ -223,6 +247,7 @@ sc_mode_packages() {
 # main
 PKG_DBDIR="${PKG_DBDIR:-/var/db/pkg}"
 IGNORE_ACTUAL="/etc/sysclean.ignore"
+PKGLOCATEDB='/usr/local/share/share/pkglocatedb'
 
 MODE=''
 SHOW_USEDLIBS='false'
@@ -258,9 +283,11 @@ FILELIST_OLDLIBS_DB="${_WRKDIR}/oldlibs-db"
 FILELIST_OLDLIBS_PATTERN="${_WRKDIR}/oldlibs-pattern"
 FILELIST_OLDLIBS_USED_DB="${_WRKDIR}/oldlibs-used-db"
 FILELIST_OLDLIBS_USED_PATTERN="${_WRKDIR}/oldlibs-used-pattern"
+FILELIST_INPACKAGES_PATTERN="${_WRKDIR}/inpackages-pattern"
 readonly _WRKDIR FILELIST_EXPECTED FILELIST_ACTUAL FILELIST_ACTUAL_PKGDB \
 	FILELIST_ADDEDFILES FILELIST_OLDLIBS_DB FILELIST_OLDLIBS_PATTERN \
-	FILELIST_OLDLIBS_USED_DB FILELIST_OLDLIBS_USED_PATTERN
+	FILELIST_OLDLIBS_USED_DB FILELIST_OLDLIBS_USED_PATTERN \
+	FILELIST_INPACKAGES_PATTERN
 
 trap 'sc_cleanup; exit 1' 0 1 2 3 13 15
 
