@@ -87,9 +87,12 @@ sc_generate_actual() {
 		_prune[${_i}]='-o'	; _i=$((_i + 1))
 	done
 
-	# remove packages @sample and @rcscript from search
+	# remove packages @extra, @rcscript and @sample from search
 	find "${PKG_DBDIR}" -name +CONTENTS -print0 \
-		| xargs -0 grep -Fh -e '@sample ' -e '@rcscript ' \
+		| xargs -0 grep -Fh \
+			-e '@extra ' \
+			-e '@rcscript ' \
+			-e '@sample ' \
 		> "${FILELIST_ACTUAL_PKGDB}"
 
 	while read _x _path; do
