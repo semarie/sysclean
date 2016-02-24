@@ -80,7 +80,7 @@ sc_generate_actual() {
 
 	# build default list of files to _prune
 	for _path in '/etc/hostname.*' '/etc/ssh/ssh_host_*' /boot /bsd \
-		/bsd.mp /bsd.rd /bsd.sp /dev /etc/firmware /etc/fstab \
+		/bsd.mp /bsd.rd /bsd.sp /dev /etc/fstab \
 		/etc/hosts /etc/iked/local.pub /etc/iked/private/local.key \
 		/etc/isakmpd/local.pub /etc/isakmpd/private/local.key \
 		/etc/myname /etc/pkg.conf /etc/random.seed /home /obsd /root \
