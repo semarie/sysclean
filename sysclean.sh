@@ -60,7 +60,8 @@ sc_generate_expected() {
 
 	# packages files (outside LOCALBASE) are expected files
 	if [[ ! -r "${PKGLOCATEDB}" ]] ; then
-		pkg_info -qL `pkg_info -q` \
+		PKG_DBDIR="${PKG_DBDIR}" pkg_info -q \
+			| PKG_DBDIR="${PKG_DBDIR}" xargs pkg_info -qL \
 			| grep -v -e '^/usr/local/' -e '^$' \
 			>> "${FILELIST_EXPECTED}"
 	fi
