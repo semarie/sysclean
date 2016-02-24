@@ -27,12 +27,12 @@ usage() {
 
 sc_err() {
 	local _exit
-       	_exit="$1"; shift
+	_exit="${1}"; shift
 
 	echo "${0##*/}: error: $@"
 
 	sc_cleanup
-	exit ${_exit}
+	exit "${_exit}"
 }
 
 sc_cleanup() {
@@ -61,7 +61,7 @@ sc_generate_expected() {
 	# packages files (outside LOCALBASE) are expected files
 	if [[ ! -r "${PKGLOCATEDB}" ]] ; then
 		PKG_DBDIR="${PKG_DBDIR}" pkg_info -q \
-			| PKG_DBDIR="${PKG_DBDIR}" xargs pkg_info -qL \
+			| PKG_DBDIR="${PKG_DBDIR}" xargs pkg_info -qL -- \
 			| grep -v -e '^/usr/local/' -e '^$' \
 			>> "${FILELIST_EXPECTED}"
 	fi
@@ -154,7 +154,7 @@ sc_generate_addedfiles() {
 	if [[ -r "${PKGLOCATEDB}" ]]; then
 		# extract list of files that are also in installed packages
 		sed -e 's/^/*:/' < "${FILELIST_ADDEDFILES}" \
-			| xargs locate -d "${PKGLOCATEDB}" \
+			| xargs locate -d "${PKGLOCATEDB}" -- \
 			| while IFS=':' read pkgname portname filename; do
 
 			if [[ -d "${PKG_DBDIR}/${pkgname}" ]] ; then
@@ -247,7 +247,7 @@ sc_mode_packages() {
 
 # main
 PKG_DBDIR="${PKG_DBDIR:-/var/db/pkg}"
-IGNORE_ACTUAL="/etc/sysclean.ignore"
+IGNORE_ACTUAL='/etc/sysclean.ignore'
 PKGLOCATEDB='/usr/local/share/share/pkglocatedb'
 
 MODE=''
@@ -273,7 +273,7 @@ shift $(( OPTIND -1 ))
 [[ -z "${MODE}" ]] && usage
 
 [[ $(id -u) -ne 0 ]] && \
-	echo "warn: need root privileges for complete listing" >&2
+	echo 'warn: need root privileges for complete listing' >&2
 
 _WRKDIR=$(mktemp -d /tmp/sysclean.XXXXXXXXXX) || exit 1
 FILELIST_EXPECTED="${_WRKDIR}/expected"
