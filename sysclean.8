@@ -97,3 +97,10 @@ was written in 2015.
 .Nm
 was written by
 .An Sebastien Marie Aq Mt semarie@openbsd.org .
+.Sh CAVEATS
+.Nm
+relies on
+.Xr pkg_info 1
+for obtaining the list of installed files from packages.
+This list doesn't contains directories entries resulting possible
+false-positives.
