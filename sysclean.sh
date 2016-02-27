@@ -266,7 +266,7 @@ shift $(( OPTIND -1 ))
 
 _WRKDIR=$(mktemp -d /tmp/sysclean.XXXXXXXXXX) || exit 1
 FILELIST_EXPECTED="${_WRKDIR}/expected"
-FILELIST_EXPECTED_PKGDB="${_WRKDIR}/actual-pkgdb"
+FILELIST_EXPECTED_PKGDB="${_WRKDIR}/expected-pkgdb"
 FILELIST_ACTUAL="${_WRKDIR}/actual"
 FILELIST_ADDEDFILES="${_WRKDIR}/added"
 FILELIST_OLDLIBS_DB="${_WRKDIR}/oldlibs-db"
