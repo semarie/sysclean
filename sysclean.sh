@@ -87,7 +87,7 @@ sc_generate_actual() {
 		/tmp /usr/local /usr/obj /usr/ports /usr/src /usr/xenocara \
 		/usr/xobj /var/backups /var/cache /var/cron /var/db /var/log \
 		/var/mail /var/run /var/spool/smtpd /var/sysmerge /var/unbound \
-		/var/www/htdocs /var/www/logs ; do
+		/var/www/htdocs /var/www/logs /var/www/run ; do
 
 		_prune[${_i}]='-path'	; _i=$((_i + 1))
 		_prune[${_i}]="${_path}"; _i=$((_i + 1))
