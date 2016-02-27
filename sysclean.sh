@@ -43,7 +43,8 @@ sc_cleanup() {
 sc_generate_expected() {
 	[[ -e "${FILELIST_EXPECTED}" ]] && return
 
-	local _dbs
+	local _dbs _keyword _path
+
 	[[ -r '/usr/lib/locate/src.db' ]] && _dbs='/usr/lib/locate/src.db'
 	[[ -r '/usr/X11R6/lib/locate/xorg.db' ]] && \
 		_dbs="${_dbs}${_dbs:+:}/usr/X11R6/lib/locate/xorg.db"
@@ -63,6 +64,30 @@ sc_generate_expected() {
 		| grep -v -e '^/usr/local/' -e '^$' \
 		>> "${FILELIST_EXPECTED}"
 
+	# add packages files from @extra and @sample
+	find "${PKG_DBDIR}" -name +CONTENTS -print0 \
+		| xargs -0 grep -Fh \
+			-e '@cwd ' \
+			-e '@extra ' \
+			-e '@sample ' \
+		> "${FILELIST_EXPECTED_PKGDB}"
+
+	while read _keyword _path; do
+		# change _cwd
+		if [[ "${_keyword}" = '@cwd' ]]; then
+			_cwd="${_path}"
+			continue
+		fi
+
+		if [[ "${_path#/}" = "${_path}" ]] ; then
+			# _path is relative, prepend _cwd
+			echo "${_cwd}/${_path%/}"
+		else
+			# _path is absolute
+			echo "${_path%/}"
+		fi
+	done < "${FILELIST_EXPECTED_PKGDB}" >> "${FILELIST_EXPECTED}"
+
 	sort -o "${FILELIST_EXPECTED}" "${FILELIST_EXPECTED}"
 }
 
@@ -73,7 +98,7 @@ sc_generate_expected() {
 sc_generate_actual() {
 	[[ -e "${FILELIST_ACTUAL}" ]] && return
 
-	local _prune _i=0 _path _x
+	local _i=0 _path _prune
 
 	# build default list of files to _prune
 	for _path in '/etc/hostname.*' '/etc/ssh/ssh_host_*' /boot /bsd \
@@ -84,27 +109,13 @@ sc_generate_actual() {
 		/tmp /usr/local /usr/obj /usr/ports /usr/src /usr/xenocara \
 		/usr/xobj /var/backups /var/cache /var/cron /var/db /var/log \
 		/var/mail /var/run /var/spool/smtpd /var/sysmerge /var/unbound \
-		/var/www/htdocs /var/www/logs /var/www/run ; do
+		/var/www/htdocs /var/www/logs /var/www/run /var/www/tmp ; do
 
 		_prune[${_i}]='-path'	; _i=$((_i + 1))
 		_prune[${_i}]="${_path}"; _i=$((_i + 1))
 		_prune[${_i}]='-prune'	; _i=$((_i + 1))
 		_prune[${_i}]='-o'	; _i=$((_i + 1))
 	done
-
-	# remove packages @extra and @sample from search
-	find "${PKG_DBDIR}" -name +CONTENTS -print0 \
-		| xargs -0 grep -Fh \
-			-e '@extra ' \
-			-e '@sample ' \
-		> "${FILELIST_ACTUAL_PKGDB}"
-
-	while read _x _path; do
-		_prune[${_i}]='-path'		; _i=$((_i + 1))
-		_prune[${_i}]="${_path%/}"	; _i=$((_i + 1))
-		_prune[${_i}]='-prune'		; _i=$((_i + 1))
-		_prune[${_i}]='-o'		; _i=$((_i + 1))
-	done < "${FILELIST_ACTUAL_PKGDB}"
 
 	# add IGNORE_ACTUAL entries to _prune list
 	if [ "${SHOW_IGNORED}" = "false" -a -r "${IGNORE_ACTUAL}" ]; then
@@ -255,14 +266,14 @@ shift $(( OPTIND -1 ))
 
 _WRKDIR=$(mktemp -d /tmp/sysclean.XXXXXXXXXX) || exit 1
 FILELIST_EXPECTED="${_WRKDIR}/expected"
+FILELIST_EXPECTED_PKGDB="${_WRKDIR}/actual-pkgdb"
 FILELIST_ACTUAL="${_WRKDIR}/actual"
-FILELIST_ACTUAL_PKGDB="${_WRKDIR}/actual-pkgdb"
 FILELIST_ADDEDFILES="${_WRKDIR}/added"
 FILELIST_OLDLIBS_DB="${_WRKDIR}/oldlibs-db"
 FILELIST_OLDLIBS_PATTERN="${_WRKDIR}/oldlibs-pattern"
 FILELIST_OLDLIBS_USED_DB="${_WRKDIR}/oldlibs-used-db"
 FILELIST_OLDLIBS_USED_PATTERN="${_WRKDIR}/oldlibs-used-pattern"
-readonly _WRKDIR FILELIST_EXPECTED FILELIST_ACTUAL FILELIST_ACTUAL_PKGDB \
+readonly _WRKDIR FILELIST_EXPECTED FILELIST_EXPECTED_PKGDB FILELIST_ACTUAL \
 	FILELIST_ADDEDFILES FILELIST_OLDLIBS_DB FILELIST_OLDLIBS_PATTERN \
 	FILELIST_OLDLIBS_USED_DB FILELIST_OLDLIBS_USED_PATTERN
 
