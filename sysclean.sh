@@ -59,12 +59,10 @@ sc_generate_expected() {
 	echo / >> "${FILELIST_EXPECTED}"
 
 	# packages files (outside LOCALBASE) are expected files
-	if [[ ! -r "${PKGLOCATEDB}" ]] ; then
-		PKG_DBDIR="${PKG_DBDIR}" pkg_info -q \
-			| PKG_DBDIR="${PKG_DBDIR}" xargs pkg_info -qL -- \
-			| grep -v -e '^/usr/local/' -e '^$' \
-			>> "${FILELIST_EXPECTED}"
-	fi
+	PKG_DBDIR="${PKG_DBDIR}" pkg_info -q \
+		| PKG_DBDIR="${PKG_DBDIR}" xargs pkg_info -qL -- \
+		| grep -v -e '^/usr/local/' -e '^$' \
+		>> "${FILELIST_EXPECTED}"
 
 	sort -o "${FILELIST_EXPECTED}" "${FILELIST_EXPECTED}"
 }
@@ -150,25 +148,6 @@ sc_generate_addedfiles() {
 			> "${FILELIST_ADDEDFILES}.tmp"
 		mv "${FILELIST_ADDEDFILES}.tmp" "${FILELIST_ADDEDFILES}"
 	fi
-
-	if [[ -r "${PKGLOCATEDB}" ]]; then
-		# extract list of files that are also in installed packages
-		# search for /one/path and /one/path/
-		sed -e 's,^,*:,p' -e 's,$,/,' < "${FILELIST_ADDEDFILES}" \
-			| xargs locate -d "${PKGLOCATEDB}" -- \
-			| while IFS=':' read pkgname portname filename; do
-
-			if [[ -d "${PKG_DBDIR}/${pkgname}" ]] ; then
-				echo "^${filename%/}\$"
-			fi
-		done > "${FILELIST_INPACKAGES_PATTERN}"
-
-		# and remove them from FILELIST_ADDEDFILES
-		grep -vf "${FILELIST_INPACKAGES_PATTERN}" \
-			< "${FILELIST_ADDEDFILES}" \
-			> "${FILELIST_ADDEDFILES}.tmp"
-		mv "${FILELIST_ADDEDFILES}.tmp" "${FILELIST_ADDEDFILES}"
-	fi
 }
 
 # generate FILELIST_OLDLIBS_DB: extract libraries from FILELIST_ADDEDFILES (so
@@ -249,7 +228,6 @@ sc_mode_packages() {
 # main
 PKG_DBDIR="${PKG_DBDIR:-/var/db/pkg}"
 IGNORE_ACTUAL='/etc/sysclean.ignore'
-PKGLOCATEDB='/usr/local/share/pkglocatedb'
 
 MODE=''
 SHOW_USEDLIBS='false'
@@ -285,11 +263,9 @@ FILELIST_OLDLIBS_DB="${_WRKDIR}/oldlibs-db"
 FILELIST_OLDLIBS_PATTERN="${_WRKDIR}/oldlibs-pattern"
 FILELIST_OLDLIBS_USED_DB="${_WRKDIR}/oldlibs-used-db"
 FILELIST_OLDLIBS_USED_PATTERN="${_WRKDIR}/oldlibs-used-pattern"
-FILELIST_INPACKAGES_PATTERN="${_WRKDIR}/inpackages-pattern"
 readonly _WRKDIR FILELIST_EXPECTED FILELIST_ACTUAL FILELIST_ACTUAL_PKGDB \
 	FILELIST_ADDEDFILES FILELIST_OLDLIBS_DB FILELIST_OLDLIBS_PATTERN \
-	FILELIST_OLDLIBS_USED_DB FILELIST_OLDLIBS_USED_PATTERN \
-	FILELIST_INPACKAGES_PATTERN
+	FILELIST_OLDLIBS_USED_DB FILELIST_OLDLIBS_USED_PATTERN
 
 trap 'sc_cleanup; exit 1' 0 1 2 3 13 15
 

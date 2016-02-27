@@ -42,11 +42,6 @@ works by comparing a reference root directory against currently installed files.
 It consideres standard system files, configuration files installed by default,
 and packages files.
 .Pp
-For packages files, it will use
-.Xr pkg_locate 1
-database from ports if present or fallback to
-.Xr pkg_info 1 .
-.Pp
 .Nm
 doesn't remove any files on the system. It only reports obsoletes filenames or
 packages using obsoletes libraries.
@@ -88,13 +83,10 @@ Patterns to ignore from output. One per line. The pattern format is the same as
 .Xr find 1
 .Fl path
 option.
-.It Pa /usr/local/share/pkglocatedb
-locate database containing information about files in OpenBSD packages.
 .El
 .Sh SEE ALSO
 .Xr find 1 ,
 .Xr pkg_info 1 ,
-.Xr pkg_locate 1 ,
 .Xr sysmerge 1
 .Sh HISTORY
 The first version of
