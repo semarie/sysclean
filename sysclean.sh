@@ -248,7 +248,7 @@ sc_mode_packages() {
 # main
 PKG_DBDIR="${PKG_DBDIR:-/var/db/pkg}"
 IGNORE_ACTUAL='/etc/sysclean.ignore'
-PKGLOCATEDB='/usr/local/share/share/pkglocatedb'
+PKGLOCATEDB='/usr/local/share/pkglocatedb'
 
 MODE=''
 SHOW_USEDLIBS='false'
