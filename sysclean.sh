@@ -153,12 +153,13 @@ sc_generate_addedfiles() {
 
 	if [[ -r "${PKGLOCATEDB}" ]]; then
 		# extract list of files that are also in installed packages
-		sed -e 's/^/*:/' < "${FILELIST_ADDEDFILES}" \
+		# search for /one/path and /one/path/
+		sed -e 's,^,*:,p' -e 's,$,/,' < "${FILELIST_ADDEDFILES}" \
 			| xargs locate -d "${PKGLOCATEDB}" -- \
 			| while IFS=':' read pkgname portname filename; do
 
 			if [[ -d "${PKG_DBDIR}/${pkgname}" ]] ; then
-				echo "^${filename}\$"
+				echo "^${filename%/}\$"
 			fi
 		done > "${FILELIST_INPACKAGES_PATTERN}"
 
