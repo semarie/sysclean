@@ -94,7 +94,7 @@ sc_generate_expected() {
 # generate FILELIST_ACTUAL: list of actual files on the system. It walks the
 # whole filesystem except severals directories.
 #
-# use SHOW_IGNORED for additionnal directories to not walk.
+# use SHOW_IGNORED for additional directories to not walk.
 sc_generate_actual() {
 	[[ -e "${FILELIST_ACTUAL}" ]] && return
 
@@ -203,7 +203,7 @@ sc_generate_oldlibs_used_db() {
 }
 
 # generate FILELIST_OLDLIBS_USED_PATTERN: a grep pattern file for searching
-# filenames of unexpected libaries.
+# filenames of unexpected libraries.
 sc_generate_oldlibs_used_pattern() {
 	[[ -e "${FILELIST_OLDLIBS_USED_PATTERN}" ]] && return
 
