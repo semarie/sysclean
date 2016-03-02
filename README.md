@@ -47,6 +47,8 @@
 # HISTORY
      The first version of sysclean was written in 2015.
 
+# AUTHORS
+     sysclean was written by Sebastien Marie <semarie@openbsd.org>.
 
 # CAVEATS
      sysclean relies on pkg_info(1) for obtaining the list of installed files
