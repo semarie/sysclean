@@ -84,6 +84,26 @@ Patterns to ignore from output. One per line. The pattern format is the same as
 .Fl path
 option.
 .El
+.Sh EXAMPLES
+Obtain the list of outdated files (without used libraries from ports):
+.Bd -literal -offset indent
+# sysclean -f
+/usr/lib/libc.so.83.0
+.Ed
+.Pp
+Obtain the list of old libraries with package using it:
+.Bd -literal -offset indent
+# sysclean -p
+/usr/lib/libc.so.84.1   git-2.7.0
+/usr/lib/libc.so.84.1   gmake-4.1p0
+.Ed
+.Pp
+Obtain the list of all outdated files (including used libraries):
+.Bd -literal -offset indent
+# sysclean -fa
+/usr/lib/libc.so.83.0
+/usr/lib/libc.so.84.1
+.Ed
 .Sh SEE ALSO
 .Xr find 1 ,
 .Xr pkg_info 1 ,

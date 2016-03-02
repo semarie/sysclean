@@ -41,6 +41,24 @@
      /etc/sysclean.ignore  Patterns to ignore from output. One per line. The
                            pattern format is the same as find(1) -path option.
 
+# EXAMPLES
+     Obtain the list of outdated files (without used libraries from ports):
+
+           # sysclean -f
+           /usr/lib/libc.so.83.0
+
+     Obtain the list of old libraries with package using it:
+
+           # sysclean -p
+           /usr/lib/libc.so.84.1   git-2.7.0
+           /usr/lib/libc.so.84.1   gmake-4.1p0
+
+     Obtain the list of all outdated files (including used libraries):
+
+           # sysclean -fa
+           /usr/lib/libc.so.83.0
+           /usr/lib/libc.so.84.1
+
 # SEE ALSO
      find(1), pkg_info(1), sysmerge(1)
 
