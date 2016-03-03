@@ -118,7 +118,7 @@ sc_generate_actual() {
 	done
 
 	# add IGNORE_ACTUAL entries to _prune list
-	if [ "${SHOW_IGNORED}" = "false" -a -r "${IGNORE_ACTUAL}" ]; then
+	if [[ "${SHOW_IGNORED}" = "false" && -r "${IGNORE_ACTUAL}" ]]; then
 		while read _path; do
 			# stripcom
 			_path="${_path%%#*}"
