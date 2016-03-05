@@ -98,7 +98,7 @@ sc_generate_expected() {
 sc_generate_actual() {
 	[[ -e "${FILELIST_ACTUAL}" ]] && return
 
-	local _i=0 _path _prune
+	local _path _prune[]
 
 	# build default list of files to _prune
 	for _path in '/etc/hostname.*' '/etc/ssh/ssh_host_*' /boot /bsd \
@@ -111,10 +111,10 @@ sc_generate_actual() {
 		/var/mail /var/run /var/spool/smtpd /var/sysmerge /var/unbound \
 		/var/www/htdocs /var/www/logs /var/www/run /var/www/tmp ; do
 
-		_prune[${_i}]='-path'	; _i=$((_i + 1))
-		_prune[${_i}]="${_path}"; _i=$((_i + 1))
-		_prune[${_i}]='-prune'	; _i=$((_i + 1))
-		_prune[${_i}]='-o'	; _i=$((_i + 1))
+		_prune[${#_prune[@]}]='-path'
+		_prune[${#_prune[@]}]="${_path}"
+		_prune[${#_prune[@]}]='-prune'
+		_prune[${#_prune[@]}]='-o'
 	done
 
 	# add IGNORE_ACTUAL entries to _prune list
@@ -124,10 +124,10 @@ sc_generate_actual() {
 			_path="${_path%%#*}"
 			[[ -z "${_path}" ]] && continue
 
-			_prune[${_i}]='-path'	; _i=$((_i + 1))
-			_prune[${_i}]="${_path}"; _i=$((_i + 1))
-			_prune[${_i}]='-prune'	; _i=$((_i + 1))
-			_prune[${_i}]='-o'	; _i=$((_i + 1))
+			_prune[${#_prune[@]}]='-path'
+			_prune[${#_prune[@]}]="${_path}"
+			_prune[${#_prune[@]}]='-prune'
+			_prune[${#_prune[@]}]='-o'
 		done < "${IGNORE_ACTUAL}"
 	fi
 
