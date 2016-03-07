@@ -22,7 +22,7 @@
 .Os
 .Sh NAME
 .Nm sysclean
-.Nd help removing obsoletes files between upgrades
+.Nd help removing obsolete files between upgrades
 .Sh SYNOPSIS
 .Nm
 .Fl f
@@ -34,8 +34,7 @@
 .Nm
 is a
 .Xr ksh 1
-script designed to the administrator to help removing obsoletes files between
-upgrades.
+script designed to help removing obsolete files between upgrades.
 .Pp
 .Nm
 works by comparing a reference root directory against currently installed files.
@@ -43,20 +42,20 @@ It considers standard system files, configuration files installed by default,
 and packages files.
 .Pp
 .Nm
-doesn't remove any files on the system. It only reports obsoletes filenames or
-packages using obsoletes libraries.
+doesn't remove any files on the system.
+It only reports obsolete filenames or packages using out-of-date libraries.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
 .It Fl f
 Filename mode.
 .Nm
-will output obsoletes filenames present on the system. By default, it doesn't
-show filenames used by installed packages.
+will output obsolete filenames present on the system.
+By default, it doesn't show filenames used by installed packages.
 .It Fl p
 Package mode.
 .Nm
-will output packages names using obsoletes files.
+will output packages names using obsolete files.
 .It Fl a
 All files.
 .Nm
@@ -79,7 +78,9 @@ environment variable.
 .Sh FILES
 .Bl -tag -width "/etc/sysclean.ignore"
 .It Pa /etc/sysclean.ignore
-Patterns to ignore from output. One per line. The pattern format is the same as
+Patterns to ignore from output.
+One per line.
+The pattern format is the same as
 .Xr find 1
 .Fl path
 option.
@@ -107,7 +108,7 @@ Obtain the list of all outdated files (including used libraries):
 .Sh SEE ALSO
 .Xr find 1 ,
 .Xr pkg_info 1 ,
-.Xr sysmerge 1
+.Xr sysmerge 8
 .Sh HISTORY
 The first version of
 .Nm
