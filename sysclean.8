@@ -125,3 +125,16 @@ relies on
 for obtaining the list of installed files from packages.
 This list doesn't contains directories entries resulting possible
 false-positives.
+.Pp
+.Nm
+will recursively descends all directories not in standard
+.Xr hier 7 .
+If you use directories with lot of files like
+.Pa /cvs
+or
+.Pa /data
+it is better to add them in advance to
+.Pa /etc/sysclean.ignore .
+In some cases, you could fill up your
+.Pa /tmp
+directory if extraneous files are really numerous.
