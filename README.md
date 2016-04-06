@@ -73,3 +73,9 @@
      from packages.  This list doesn't contains directories entries resulting
      possible false-positives.
 
+     sysclean will recursively descends all directories not in standard
+     hier(7).  If you use directories with lot of files like /cvs or /data it
+     is better to add them in advance to /etc/sysclean.ignore.  In some cases,
+     you could fill up your /tmp directory if extraneous files are really
+     numerous.
+
