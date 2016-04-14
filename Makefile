@@ -2,7 +2,7 @@
 
 MAN=	sysclean.8
 
-SCRIPT=	sysclean.sh
+SCRIPT=	sysclean.pl
 
 BINDIR?=	/usr/local/bin
 MANDIR?=	/usr/local/man/man

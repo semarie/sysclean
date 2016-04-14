@@ -7,7 +7,7 @@
      sysclean -p [-i]
 
 # DESCRIPTION
-     sysclean is a ksh(1) script designed to help removing obsolete files
+     sysclean is a perl(1) script designed to help removing obsolete files
      between upgrades.
 
      sysclean works by comparing a reference root directory against currently
@@ -67,15 +67,4 @@
 
 # AUTHORS
      sysclean was written by Sebastien Marie <semarie@openbsd.org>.
-
-# CAVEATS
-     sysclean relies on pkg_info(1) for obtaining the list of installed files
-     from packages.  This list doesn't contains directories entries resulting
-     possible false-positives.
-
-     sysclean will recursively descends all directories not in standard
-     hier(7).  If you use directories with lot of files like /cvs or /data it
-     is better to add them in advance to /etc/sysclean.ignore.  In some cases,
-     you could fill up your /tmp directory if extraneous files are really
-     numerous.
 
