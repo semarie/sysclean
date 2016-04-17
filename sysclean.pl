@@ -20,140 +20,59 @@
 use strict;
 use warnings;
 
-# extent OpenBSD::PackingElement for walking though FileObject
-package OpenBSD::PackingElement;
-sub walk_sysclean
+package sysclean;
+sub create
 {
+	my ($base, $options) = @_;
+
+	my $with_ignored = !defined $$options{i};
+
+	sysclean->usage if ((!defined $$options{f} && !defined $$options{p}) ||
+	    (defined $$options{f} && defined $$options{p}) ||
+	    (defined $$options{p} && defined $$options{a}));
+
+	my $class;
+	$class = qw(sysclean::packages) if (defined $$options{p});
+	$class = qw(sysclean::files)    if (defined $$options{f});
+	$class = qw(sysclean::allfiles) if (defined $$options{a});
+
+	return $class->new($with_ignored);
 }
 
-package OpenBSD::PackingElement::FileObject;
-
-sub walk_sysclean
+sub new
 {
-	my $item = shift;
-	my $pkgname = shift;
-	my $expected = shift;
-	my $used_libs = shift;
+	my ($class, $with_ignored) = @_;
+	my $self = bless {}, $class;
 
-	my $fname = $item->fullname;
-	# no filter (but mem usage)				# 26.81 27.84 27.99
-	#return if ($fname =~ m|^/usr/local/|o);		# 26.83 27.67 27.98
-	#return if (index($fname, '/usr/local/') == 0);		# 25.53 27.44 27.70
-	#return if (substr($fname, 0, 11) eq '/usr/local/');	# 26.53 26.93 27.64
+	$self->init_discard;
+	$self->init;
+	$self->read_ignored if ($with_ignored);
 
-	$$expected{$fname} = 1;
+	return $self;
 }
 
-package OpenBSD::PackingElement::Wantlib;
-sub walk_sysclean
-{
-	my $item = shift;
-	my $pkgname = shift;
-	my $expected = shift;
-	my $used_libs = shift;
 
-	$$used_libs{$item->name} = $pkgname;
-}
-
-# go back to real program
-package main;
-
-use Getopt::Std;
-
-my %options = ();	# program flags
-my %ignored = ();	# user-ignored files
-
-sub sc_usage
+sub usage
 {
 	print "usage: $0 -f [-ai]\n";
 	print "       $0 -p [-i]\n";
 	exit 1
 }
 
-sub sc_err
+sub err
 {
-	my $exitcode = shift;
+	my ($self, $exitcode, @rest) = @_;
 
-	print "$0: error: @_\n";
+	print "$0: error: @rest\n";
 
 	exit $exitcode;
 }
 
-sub sc_generate_expected_base
+sub init_discard
 {
-	use OpenBSD::Paths;
+	my $self = shift;
 
-	my $expected = shift;
-
-	# base system	
-	open(my $cmd, '-|', 'locate',
-		'-d', OpenBSD::Paths->srclocatedb,
-		'-d', OpenBSD::Paths->xlocatedb,
-		'*') || sc_err(1, "can't read base locatedb");
-	while (<$cmd>) {
-		chomp;
-		my ($set, $path) = split(':', $_, 2);
-		$$expected{$path} = 1;
-	}
-	close($cmd);
-
-	# others files expected too
-	$$expected{'/'} = 1;
-	$$expected{'/boot'} = 1;
-	$$expected{'/bsd'} = 1;
-	$$expected{'/bsd.mp'} = 1;
-	$$expected{'/bsd.rd'} = 1;
-	$$expected{'/bsd.sp'} = 1;
-	$$expected{'/obsd'} = 1;
-	$$expected{'/etc/fstab'} = 1;
-	$$expected{'/etc/hosts'} = 1;
-	$$expected{'/etc/iked/local.pub'} = 1;
-	$$expected{'/etc/iked/private/local.key'} = 1;
-	$$expected{'/etc/isakmpd/local.pub'} = 1;
-	$$expected{'/etc/isakmpd/private/local.key'} = 1;
-	$$expected{'/etc/ssh/ssh_host_rsa_key'} = 1;
-	$$expected{'/etc/ssh/ssh_host_rsa_key.pub'} = 1;
-	$$expected{'/etc/ssh/ssh_host_dsa_key'} = 1;
-	$$expected{'/etc/ssh/ssh_host_dsa_key.pub'} = 1;
-	$$expected{'/etc/ssh/ssh_host_ecdsa_key'} = 1;
-	$$expected{'/etc/ssh/ssh_host_ecdsa_key.pub'} = 1;
-	$$expected{'/etc/ssh/ssh_host_ed25519_key'} = 1;
-	$$expected{'/etc/ssh/ssh_host_ed25519_key.pub'} = 1;
-	$$expected{'/etc/myname'} = 1;
-	$$expected{'/etc/pkg.conf'} = 1;
-	$$expected{'/etc/random.seed'} = 1;
-}
-
-sub sc_generate_expected_ports
-{
-	use OpenBSD::PackageInfo;
-	use OpenBSD::PackingList;
-
-	my $expected = shift;
-	my $used_libs = shift;
-
-	for my $pkgname (installed_packages()) {
-		my $plist = OpenBSD::PackingList->from_installation($pkgname);
-		$plist->walk_sysclean($pkgname, $expected, $used_libs);
-	}
-}
-
-sub sc_generate_expected
-{
-	my $expected = shift;
-	my $used_libs = shift;
-
-	sc_generate_expected_base($expected);
-	sc_generate_expected_ports($expected, $used_libs);
-}
-
-sub sc_print_addedfiles
-{
-	use File::Find;
-
-	my %expected = ();
-	my %used_libs = ();
-	my %discard = (
+	$self->{discard} = {
 		'/dev' => 1,
 		'/home' => 1,
 		'/root' => 1,
@@ -177,113 +96,235 @@ sub sc_print_addedfiles
 		'/var/www/logs' => 1,
 		'/var/www/run' => 1,
 		'/var/www/tmp' => 1,
-	);
+	};
+}
 
-	sc_generate_expected(\%expected, \%used_libs);
+sub init
+{
+}
 
-	# -fa [-i]
-	my $mode_files_all = sub
-	{
-		if (exists($discard{$_}) || exists($ignored{$_})) {
-			# skip discard or ignored files
-			$File::Find::prune = 1;
+sub add_expected_base
+{
+	my $self = shift;
 
-		} elsif (! exists($expected{$_})) {
-			# not expected file
-
-			if ( -d ) {
-				# don't descend in unknown directory
-				$File::Find::prune = 1;
-			}
-
-			print($_, "\n");
-		}
+	# simple files expected (and not in locate databases)
+	$self->{expected} = {
+		'/' => 1,
+		'/boot' => 1,
+		'/bsd' => 1,
+		'/bsd.mp' => 1,
+		'/bsd.rd' => 1,
+		'/bsd.sp' => 1,
+		'/obsd' => 1,
+		'/etc/fstab' => 1,
+		'/etc/hosts' => 1,
+		'/etc/iked/local.pub' => 1,
+		'/etc/iked/private/local.key' => 1,
+		'/etc/isakmpd/local.pub' => 1,
+		'/etc/isakmpd/private/local.key' => 1,
+		'/etc/ssh/ssh_host_rsa_key' => 1,
+		'/etc/ssh/ssh_host_rsa_key.pub' => 1,
+		'/etc/ssh/ssh_host_dsa_key' => 1,
+		'/etc/ssh/ssh_host_dsa_key.pub' => 1,
+		'/etc/ssh/ssh_host_ecdsa_key' => 1,
+		'/etc/ssh/ssh_host_ecdsa_key.pub' => 1,
+		'/etc/ssh/ssh_host_ed25519_key' => 1,
+		'/etc/ssh/ssh_host_ed25519_key.pub' => 1,
+		'/etc/myname' => 1,
+		'/etc/pkg.conf' => 1,
+		'/etc/random.seed' => 1,
 	};
 
-	# -f [-i]
-	my $mode_files = sub
-	{
-		if (exists($discard{$_}) || exists($ignored{$_})) {
-			# skip discard or ignored files
-			$File::Find::prune = 1;
+	use OpenBSD::Paths;
 
-		} elsif (! exists($expected{$_})) {
-			# not expected file
+	open(my $cmd, '-|', 'locate',
+		'-d', OpenBSD::Paths->srclocatedb,
+		'-d', OpenBSD::Paths->xlocatedb,
+		'*') || $self->err(1, "can't read base locatedb");
+	while (<$cmd>) {
+		chomp;
+		my ($set, $path) = split(':', $_, 2);
+		$self->{expected}{$path} = 1;
+	}
+	close($cmd);
+}
 
-			if ( -d ) {
-				# don't descend in unknown directory
-				$File::Find::prune = 1;
-			}
+sub add_expected_ports_files
+{
+	my $self = shift;
 
-			if (m|/lib([^/]*)\.so(\.[0-9.]*)$|o &&
-				exists($used_libs{"$1$2"})) {
-				
-				# skip used-libs
-				return;
-			}
-	
-			print($_, "\n");
-		}
-	};
+	use OpenBSD::PackageInfo;
+	use OpenBSD::PackingList;
 
-	# -p [-i]
-	my $mode_packages = sub
-	{
-		if (exists($discard{$_}) || exists($ignored{$_})) {
-			# skip discard or ignored files
-			$File::Find::prune = 1;
-
-		} elsif (! exists($expected{$_})) {
-			# not expected file
-
-			if ( -d ) {
-				# don't descend in unknown directory
-				$File::Find::prune = 1;
-			}
-
-			my $file = $_;
-
-			if (m|/lib([^/]*)\.so(\.[0-9.]*)$|o) {
-				my $wantlib = "$1$2";
-
-				print($file, "\t", $used_libs{$wantlib}, "\n")
-					if (exists($used_libs{$wantlib}));
-			}
-		}
-	};
-
-	if (defined $options{f}) {
-		if (defined $options{a}) {
-			find({ wanted => $mode_files_all, follow => 0,
-					no_chdir => 1 }, '/');
-		} else {
-			find({ wanted => $mode_files, follow => 0,
-					no_chdir => 1 }, '/');
-		}
-	} else {
-		find({ wanted => $mode_packages, follow => 0, no_chdir => 1 },
-			'/');
+	for my $pkgname (installed_packages()) {
+		my $plist = OpenBSD::PackingList->from_installation($pkgname,
+		    \&OpenBSD::PackingList::FilesOnly);
+		$plist->walk_sysclean($pkgname, $self);
 	}
 }
 
-sub sc_read_ignored
+sub add_expected_ports_libs
 {
-	open(my $fh, "/etc/sysclean.ignore") || return;
+	my $self = shift;
 
+	use OpenBSD::PackageInfo;
+	use OpenBSD::PackingList;
+
+	for my $pkgname (installed_packages()) {
+		my $plist = OpenBSD::PackingList->from_installation($pkgname,
+		    \&OpenBSD::PackingList::DependOnly);
+		$plist->walk_sysclean($pkgname, $self);
+	}
+}
+
+sub read_ignored
+{
+	my $self = shift;
+
+	open(my $fh, "<", "/etc/sysclean.ignore") || return;
 	while (<$fh>) {
 		chomp;
-		$ignored{$_} = 1;
+		$self->{ignored}{$_} = 1;
 	}
 	close($fh);
 }
 
-getopts("fpaih", \%options) || sc_usage;
-sc_usage
-	if ((defined $options{h}) ||
-		(scalar(@ARGV) != 0) ||
-		(!defined $options{f} && !defined $options{p}) ||
-		(defined $options{f} && defined $options{p}) ||
-		(defined $options{p} && defined $options{a}));
+sub walk
+{
+	my $self = shift;
 
-sc_read_ignored() if (!defined $options{i});
-sc_print_addedfiles();
+	use File::Find;
+
+	my $wanted = sub {
+		my $filename = $_;
+
+		if (exists($self->{discard}{$filename}) ||
+		    exists($self->{ignored}{$filename})) {
+			# skip discard or ignored files
+			$File::Find::prune = 1;
+
+		} elsif (! exists($self->{expected}{$filename})) {
+			# not expected file
+
+			if ( -d $filename ) {
+				# don't descend in unknown directory
+				$File::Find::prune = 1;
+			}
+
+			$self->findsub($filename);
+		}
+	};
+
+	find({ wanted => $wanted, follow => 0, no_chdir => 1, }, '/');
+}
+
+sub findsub
+{
+	my $self = shift;
+	$self->err(1, "abstract method");
+}
+
+# specialized versions
+package sysclean::allfiles;
+use parent -norequire, qw(sysclean);
+
+sub init
+{
+	my ($self) = @_;
+
+	$self->add_expected_base;
+	$self->add_expected_ports_files;
+	$self->add_expected_ports_libs;
+}
+
+sub findsub
+{
+	my ($self, $filename) = @_;
+
+	print($filename, "\n");
+}
+
+package sysclean::files;
+use parent -norequire, qw(sysclean::allfiles);
+
+sub findsub
+{
+	my ($self, $filename) = @_;
+
+	if ($filename =~ m|/lib([^/]*)\.so(\.[0-9.]*)$|o &&
+	    exists($self->{used_libs}{"$1$2"})) {
+
+		# skip used-libs
+		return;
+	}
+
+	print($filename, "\n");
+}
+
+package sysclean::packages;
+use parent -norequire, qw(sysclean);
+
+sub init
+{
+	my ($self) = @_;
+
+	$self->add_expected_base;
+	$self->add_expected_ports_libs;
+}
+
+sub findsub
+{
+	my ($self, $filename) = @_;
+
+	if ($filename =~ m|/lib([^/]*)\.so(\.[0-9.]*)$|o) {
+		my $wantlib = "$1$2";
+
+		print($filename, "\t", $self->{used_libs}{$wantlib}, "\n")
+			if (exists($self->{used_libs}{$wantlib}));
+	}
+}
+
+# extent OpenBSD::PackingElement for walking though FileObject
+package OpenBSD::PackingElement;
+sub walk_sysclean
+{
+}
+
+package OpenBSD::PackingElement::FileObject;
+sub walk_sysclean
+{
+	my ($item, $pkgname, $sc) = @_;
+
+	$sc->{expected}{$item->fullname} = 1;
+}
+
+package OpenBSD::PackingElement::Sampledir;
+sub walk_sysclean
+{
+	my ($item, $pkgname, $sc) = @_;
+
+	$sc->{discard}{$item->fullname} = 1;
+}
+
+package OpenBSD::PackingElement::Wantlib;
+sub walk_sysclean
+{
+	my ($item, $pkgname, $sc) = @_;
+
+	$sc->{used_libs}{$item->name} = $pkgname;
+}
+
+
+package main;
+
+use Getopt::Std;
+
+my %options = ();	# program flags
+
+getopts("fpaih", \%options) || sysclean->usage;
+sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
+
+print STDERR "warn: need root privileges for complete listing\n" if ($> != 0);
+
+my $sc = sysclean->create(\%options);
+$sc->walk;
