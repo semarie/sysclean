@@ -21,6 +21,8 @@ use strict;
 use warnings;
 
 package sysclean;
+
+# choose class for mode, depending of %options
 sub create
 {
 	my ($base, $options) = @_;
@@ -39,6 +41,7 @@ sub create
 	return $class->new($with_ignored);
 }
 
+# constructor
 sub new
 {
 	my ($class, $with_ignored) = @_;
@@ -46,12 +49,12 @@ sub new
 
 	$self->init_discard;
 	$self->init;
-	$self->read_ignored if ($with_ignored);
+	$self->add_user_ignored if ($with_ignored);
 
 	return $self;
 }
 
-
+# print usage and exit
 sub usage
 {
 	print "usage: $0 -f [-ai]\n";
@@ -59,15 +62,17 @@ sub usage
 	exit 1
 }
 
+# print error and exit
 sub err
 {
 	my ($self, $exitcode, @rest) = @_;
 
-	print "$0: error: @rest\n";
+	print STDERR "$0: error: @rest\n";
 
 	exit $exitcode;
 }
 
+# initial list of discarded files and directories
 sub init_discard
 {
 	my $self = shift;
@@ -99,10 +104,15 @@ sub init_discard
 	};
 }
 
+# overrided method
 sub init
 {
+	my $self = shift;
+	$self->err(1, "abstract method: init");
 }
 
+# add expected files from base
+# WARNING: `expected' attribute is overrided
 sub add_expected_base
 {
 	my $self = shift;
@@ -149,6 +159,8 @@ sub add_expected_base
 	close($cmd);
 }
 
+# add `expected' files from ports
+# WARNING: time consuming method
 sub add_expected_ports_files
 {
 	my $self = shift;
@@ -163,6 +175,7 @@ sub add_expected_ports_files
 	}
 }
 
+# add wantlib information in `used_libs'
 sub add_expected_ports_libs
 {
 	my $self = shift;
@@ -177,7 +190,8 @@ sub add_expected_ports_libs
 	}
 }
 
-sub read_ignored
+# add user-defined `ignored' files
+sub add_user_ignored
 {
 	my $self = shift;
 
@@ -189,6 +203,7 @@ sub read_ignored
 	close($fh);
 }
 
+# walk the filesystem. the method will case `findsub' overrided method.
 sub walk
 {
 	my $self = shift;
@@ -211,6 +226,7 @@ sub walk
 				$File::Find::prune = 1;
 			}
 
+			# findsub is defined per mode
 			$self->findsub($filename);
 		}
 	};
@@ -218,13 +234,18 @@ sub walk
 	find({ wanted => $wanted, follow => 0, no_chdir => 1, }, '/');
 }
 
+# overrided method
 sub findsub
 {
 	my $self = shift;
-	$self->err(1, "abstract method");
+	$self->err(1, "abstract method: findsub");
 }
 
+
+#
 # specialized versions
+#
+
 package sysclean::allfiles;
 use parent -norequire, qw(sysclean);
 
@@ -234,7 +255,6 @@ sub init
 
 	$self->add_expected_base;
 	$self->add_expected_ports_files;
-	$self->add_expected_ports_libs;
 }
 
 sub findsub
@@ -245,7 +265,16 @@ sub findsub
 }
 
 package sysclean::files;
-use parent -norequire, qw(sysclean::allfiles);
+use parent -norequire, qw(sysclean);
+
+sub init
+{
+	my ($self) = @_;
+
+	$self->add_expected_base;
+	$self->add_expected_ports_files;
+	$self->add_expected_ports_libs;
+}
 
 sub findsub
 {
@@ -284,13 +313,18 @@ sub findsub
 	}
 }
 
-# extent OpenBSD::PackingElement for walking though FileObject
+
+#
+# extent OpenBSD::PackingElement for walking
+#
+
 package OpenBSD::PackingElement;
 sub walk_sysclean
 {
 }
 
 package OpenBSD::PackingElement::FileObject;
+# used by sysclean::add_expected_ports_files
 sub walk_sysclean
 {
 	my ($item, $pkgname, $sc) = @_;
@@ -299,6 +333,7 @@ sub walk_sysclean
 }
 
 package OpenBSD::PackingElement::Sampledir;
+# used by sysclean::add_expected_ports_files
 sub walk_sysclean
 {
 	my ($item, $pkgname, $sc) = @_;
@@ -307,6 +342,7 @@ sub walk_sysclean
 }
 
 package OpenBSD::PackingElement::Wantlib;
+# used by sysclean::add_expected_ports_libs
 sub walk_sysclean
 {
 	my ($item, $pkgname, $sc) = @_;
@@ -315,6 +351,9 @@ sub walk_sysclean
 }
 
 
+#
+# main program
+#
 package main;
 
 use Getopt::Std;
