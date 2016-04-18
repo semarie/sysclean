@@ -27,8 +27,8 @@ sub subclass
 {
 	my ($self, $options) = @_;
 	return 'sysclean::packages' if (defined $$options{p});
-	return 'sysclean::files'    if (defined $$options{f});
 	return 'sysclean::allfiles' if (defined $$options{a});
+	return 'sysclean::files'    if (defined $$options{f});
 }
 
 # choose class for mode, depending on %options
