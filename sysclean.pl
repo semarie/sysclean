@@ -47,7 +47,7 @@ sub new
 	my ($class, $with_ignored) = @_;
 	my $self = bless {}, $class;
 
-	$self->init_discard;
+	$self->init_ignored;
 	$self->init;
 	$self->add_user_ignored if ($with_ignored);
 
@@ -72,12 +72,12 @@ sub err
 	exit $exitcode;
 }
 
-# initial list of discarded files and directories
-sub init_discard
+# initial list of ignored files and directories
+sub init_ignored
 {
 	my $self = shift;
 
-	$self->{discard} = {
+	$self->{ignored} = {
 		'/dev' => 1,
 		'/home' => 1,
 		'/root' => 1,
@@ -213,9 +213,8 @@ sub walk
 	my $wanted = sub {
 		my $filename = $_;
 
-		if (exists($self->{discard}{$filename}) ||
-		    exists($self->{ignored}{$filename})) {
-			# skip discard or ignored files
+		if (exists($self->{ignored}{$filename})) {
+			# skip ignored files
 			$File::Find::prune = 1;
 
 		} elsif (! exists($self->{expected}{$filename})) {
@@ -338,7 +337,7 @@ sub walk_sysclean
 {
 	my ($item, $pkgname, $sc) = @_;
 
-	$sc->{discard}{$item->fullname} = 1;
+	$sc->{ignored}{$item->fullname} = 1;
 }
 
 package OpenBSD::PackingElement::Wantlib;
