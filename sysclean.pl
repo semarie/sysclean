@@ -349,5 +349,4 @@ sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
 print STDERR "warn: need root privileges for complete listing\n" if ($> != 0);
 
-my $sc = sysclean->create(\%options);
-$sc->walk;
+sysclean->create(\%options)->walk;
