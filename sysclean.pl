@@ -230,7 +230,13 @@ use parent -norequire, qw(sysclean);
 
 sub plist_reader
 {
-	return \&OpenBSD::PackingList::FilesOnly;
+	return sub {
+	    my ($fh, $cont) = @_;
+	    while (<$fh>) {
+		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|extra|sample|bin|rcscript)\b/o || !m/^\@/o;
+		    &$cont($_);
+	    };
+	}
 }
 
 sub findsub
@@ -248,7 +254,7 @@ sub plist_reader
 	return sub {
 	    my ($fh, $cont) = @_;
 	    while (<$fh>) {
-		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
+		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|extra|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
 		    &$cont($_);
 	    };
 	}
