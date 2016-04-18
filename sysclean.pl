@@ -150,6 +150,12 @@ sub add_expected_base
 		'/etc/random.seed' => 1,
 	};
 
+	# additionnal expected files, using pattern
+	foreach my $filename (</etc/hostname.*>) {
+		$self->{expected}{$filename} = 1;
+	}
+
+	# expected files, from locate databases
 	use OpenBSD::Paths;
 
 	open(my $cmd, '-|', 'locate',
