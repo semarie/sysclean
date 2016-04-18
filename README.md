@@ -38,8 +38,7 @@
                 PKG_DBDIR environment variable.
 
 # FILES
-     /etc/sysclean.ignore  Patterns to ignore from output.  One per line.  The
-                           pattern format is the same as find(1) -path option.
+     /etc/sysclean.ignore  Files to ignore from output.  One per line.
 
 # EXAMPLES
      Obtain the list of outdated files (without used libraries from ports):
@@ -60,10 +59,11 @@
            /usr/lib/libc.so.84.1
 
 # SEE ALSO
-     find(1), pkg_info(1), sysmerge(8)
+     pkg_info(1), sysmerge(8)
 
 # HISTORY
-     The first version of sysclean was written in 2015.
+     The first version of sysclean was written as ksh(1) script in 2015, and
+     rewritten using perl(1) in 2016.
 
 # AUTHORS
      sysclean was written by Sebastien Marie <semarie@openbsd.org>.
