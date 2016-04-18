@@ -199,7 +199,7 @@ sub add_user_ignored
 	close($fh);
 }
 
-# walk the filesystem. the method will call `findsub' overriden method.
+# walk the filesystem. the method will call `find_sub' overriden method.
 sub walk
 {
 	my $self = shift;
@@ -220,8 +220,8 @@ sub walk
 				$File::Find::prune = 1;
 			}
 
-			# findsub is defined per mode
-			$self->findsub($_);
+			# find_sub is defined per mode
+			$self->find_sub($_);
 		}
 	    }, follow => 0, no_chdir => 1, }, '/');
 }
@@ -245,7 +245,7 @@ sub plist_reader
 	}
 }
 
-sub findsub
+sub find_sub
 {
 	my ($self, $filename) = @_;
 
@@ -266,7 +266,7 @@ sub plist_reader
 	}
 }
 
-sub findsub
+sub find_sub
 {
 	my ($self, $filename) = @_;
 
@@ -288,7 +288,7 @@ sub plist_reader
 	return \&OpenBSD::PackingList::DependOnly;
 }
 
-sub findsub
+sub find_sub
 {
 	my ($self, $filename) = @_;
 
