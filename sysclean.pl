@@ -22,7 +22,15 @@ use warnings;
 
 package sysclean;
 
-# choose class for mode, depending of %options
+sub subclass
+{
+	my ($self, $options) = @_;
+	return 'sysclean::packages' if (defined $$options{p});
+	return 'sysclean::files'    if (defined $$options{f});
+	return 'sysclean::allfiles' if (defined $$options{a});
+}
+
+# choose class for mode, depending on %options
 sub create
 {
 	my ($base, $options) = @_;
@@ -33,12 +41,7 @@ sub create
 	    (defined $$options{f} && defined $$options{p}) ||
 	    (defined $$options{p} && defined $$options{a}));
 
-	my $class;
-	$class = qw(sysclean::packages) if (defined $$options{p});
-	$class = qw(sysclean::files)    if (defined $$options{f});
-	$class = qw(sysclean::allfiles) if (defined $$options{a});
-
-	return $class->new($with_ignored);
+	return $base->subclass($options)->new($with_ignored);
 }
 
 # constructor
@@ -104,11 +107,12 @@ sub init_ignored
 	};
 }
 
-# overrided method
 sub init
 {
-	my $self = shift;
-	$self->err(1, "abstract method: init");
+	my ($self) = @_;
+
+	$self->add_expected_base;
+	$self->add_expected_ports_info;
 }
 
 # add expected files from base
@@ -159,9 +163,8 @@ sub add_expected_base
 	close($cmd);
 }
 
-# add `expected' files from ports
-# WARNING: time consuming method
-sub add_expected_ports_files
+# add expected information from ports
+sub add_expected_ports_info
 {
 	my $self = shift;
 
@@ -170,22 +173,7 @@ sub add_expected_ports_files
 
 	for my $pkgname (installed_packages()) {
 		my $plist = OpenBSD::PackingList->from_installation($pkgname,
-		    \&OpenBSD::PackingList::FilesOnly);
-		$plist->walk_sysclean($pkgname, $self);
-	}
-}
-
-# add wantlib information in `used_libs'
-sub add_expected_ports_libs
-{
-	my $self = shift;
-
-	use OpenBSD::PackageInfo;
-	use OpenBSD::PackingList;
-
-	for my $pkgname (installed_packages()) {
-		my $plist = OpenBSD::PackingList->from_installation($pkgname,
-		    \&OpenBSD::PackingList::DependOnly);
+		    $self->PlistReader);
 		$plist->walk_sysclean($pkgname, $self);
 	}
 }
@@ -203,57 +191,43 @@ sub add_user_ignored
 	close($fh);
 }
 
-# walk the filesystem. the method will case `findsub' overrided method.
+# walk the filesystem. the method will call `findsub' overriden method.
 sub walk
 {
 	my $self = shift;
 
 	use File::Find;
 
-	my $wanted = sub {
-		my $filename = $_;
-
-		if (exists($self->{ignored}{$filename})) {
+	find({ wanted => 
+	    sub {
+		if (exists($self->{ignored}{$_})) {
 			# skip ignored files
 			$File::Find::prune = 1;
 
-		} elsif (! exists($self->{expected}{$filename})) {
+		} elsif (! exists($self->{expected}{$_})) {
 			# not expected file
 
-			if ( -d $filename ) {
+			if ( -d $_ ) {
 				# don't descend in unknown directory
 				$File::Find::prune = 1;
 			}
 
 			# findsub is defined per mode
-			$self->findsub($filename);
+			$self->findsub($_);
 		}
-	};
-
-	find({ wanted => $wanted, follow => 0, no_chdir => 1, }, '/');
+	    }, follow => 0, no_chdir => 1, }, '/');
 }
-
-# overrided method
-sub findsub
-{
-	my $self = shift;
-	$self->err(1, "abstract method: findsub");
-}
-
 
 #
 # specialized versions
 #
-
 package sysclean::allfiles;
 use parent -norequire, qw(sysclean);
 
-sub init
-{
-	my ($self) = @_;
 
-	$self->add_expected_base;
-	$self->add_expected_ports_files;
+sub PlistReader
+{
+	return \&OpenBSD::PackingList::FilesOnly;
 }
 
 sub findsub
@@ -266,15 +240,17 @@ sub findsub
 package sysclean::files;
 use parent -norequire, qw(sysclean);
 
-sub init
+sub PlistReader
 {
-	my ($self) = @_;
-
-	$self->add_expected_base;
-	$self->add_expected_ports_files;
-	$self->add_expected_ports_libs;
+	return sub {
+	    my ($fh, $cont) = @_;
+	    while (<$fh>) {
+		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
+		    &$cont($_);
+	    };
 }
 
+}
 sub findsub
 {
 	my ($self, $filename) = @_;
@@ -292,12 +268,9 @@ sub findsub
 package sysclean::packages;
 use parent -norequire, qw(sysclean);
 
-sub init
+sub PlistReader
 {
-	my ($self) = @_;
-
-	$self->add_expected_base;
-	$self->add_expected_ports_libs;
+	return \&OpenBSD::PackingList::DependOnly;
 }
 
 sub findsub
