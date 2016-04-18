@@ -22,6 +22,7 @@ use warnings;
 
 package sysclean;
 
+# return subclass according to options
 sub subclass
 {
 	my ($self, $options) = @_;
@@ -163,7 +164,8 @@ sub add_expected_base
 	close($cmd);
 }
 
-# add expected information from ports
+# add expected information from ports. the method will call `plist_reader'
+# overriden method.
 sub add_expected_ports_info
 {
 	my $self = shift;
@@ -173,7 +175,7 @@ sub add_expected_ports_info
 
 	for my $pkgname (installed_packages()) {
 		my $plist = OpenBSD::PackingList->from_installation($pkgname,
-		    $self->PlistReader);
+		    $self->plist_reader);
 		$plist->walk_sysclean($pkgname, $self);
 	}
 }
@@ -198,7 +200,7 @@ sub walk
 
 	use File::Find;
 
-	find({ wanted => 
+	find({ wanted =>
 	    sub {
 		if (exists($self->{ignored}{$_})) {
 			# skip ignored files
@@ -218,14 +220,15 @@ sub walk
 	    }, follow => 0, no_chdir => 1, }, '/');
 }
 
+
 #
 # specialized versions
 #
+
 package sysclean::allfiles;
 use parent -norequire, qw(sysclean);
 
-
-sub PlistReader
+sub plist_reader
 {
 	return \&OpenBSD::PackingList::FilesOnly;
 }
@@ -240,7 +243,7 @@ sub findsub
 package sysclean::files;
 use parent -norequire, qw(sysclean);
 
-sub PlistReader
+sub plist_reader
 {
 	return sub {
 	    my ($fh, $cont) = @_;
@@ -248,9 +251,9 @@ sub PlistReader
 		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
 		    &$cont($_);
 	    };
+	}
 }
 
-}
 sub findsub
 {
 	my ($self, $filename) = @_;
@@ -268,7 +271,7 @@ sub findsub
 package sysclean::packages;
 use parent -norequire, qw(sysclean);
 
-sub PlistReader
+sub plist_reader
 {
 	return \&OpenBSD::PackingList::DependOnly;
 }
@@ -296,7 +299,6 @@ sub walk_sysclean
 }
 
 package OpenBSD::PackingElement::FileObject;
-# used by sysclean::add_expected_ports_files
 sub walk_sysclean
 {
 	my ($item, $pkgname, $sc) = @_;
@@ -305,7 +307,6 @@ sub walk_sysclean
 }
 
 package OpenBSD::PackingElement::Sampledir;
-# used by sysclean::add_expected_ports_files
 sub walk_sysclean
 {
 	my ($item, $pkgname, $sc) = @_;
@@ -314,7 +315,6 @@ sub walk_sysclean
 }
 
 package OpenBSD::PackingElement::Wantlib;
-# used by sysclean::add_expected_ports_libs
 sub walk_sysclean
 {
 	my ($item, $pkgname, $sc) = @_;
