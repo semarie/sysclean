@@ -38,9 +38,11 @@
                 PKG_DBDIR environment variable.
 
 # FILES
-     /etc/sysclean.ignore  Files to ignore from output.  One per line.  If the
-                           filename is a directory, sysclean will not explore
-                           it, so all files behind will be ignored too.
+     /etc/sysclean.ignore  Patterns to ignore in filesystem walking. See
+                           File::Glob(3p) for syntax details.  One per line.
+                           If the pattern matches a directory, sysclean will
+                           not explore it, so all files behind will be ignored
+                           too.
 
 # EXAMPLES
      Obtain the list of outdated files (without used libraries from ports):

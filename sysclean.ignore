@@ -1,6 +1,8 @@
 # sysclean.ignore example file
 #
-# one filename per line.
+# each line is a pattern which may use any of the special characters documented
+# in File::Glob(3p).
 #
 /data
+/etc/*.local
 /upgrade.site

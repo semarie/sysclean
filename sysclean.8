@@ -78,9 +78,11 @@ environment variable.
 .Sh FILES
 .Bl -tag -width "/etc/sysclean.ignore"
 .It Pa /etc/sysclean.ignore
-Files to ignore from output.
+Patterns to ignore in filesystem walking. See
+.Xr File::Glob 3p
+for syntax details.
 One per line.
-If the filename is a directory,
+If the pattern matches a directory,
 .Nm
 will not explore it, so all files behind will be ignored too.
 .El

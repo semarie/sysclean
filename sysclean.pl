@@ -204,7 +204,10 @@ sub add_user_ignored
 		s/#.*$//;
 		continue if (m/^$/o);
 
-		$self->{ignored}{$_} = 1;
+		foreach my $filename (glob qq("$_")) {
+			print "a ", $filename, "\n";
+			$self->{ignored}{$filename} = 1;
+		}
 	}
 	close($fh);
 }
