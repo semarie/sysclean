@@ -202,7 +202,7 @@ sub add_user_ignored
 
 		# strip comments
 		s/#.*$//;
-		continue if (m/^$/o);
+		next if (m/^$/o);
 
 		foreach my $filename (glob qq("$_")) {
 			$self->{ignored}{$filename} = 1;
