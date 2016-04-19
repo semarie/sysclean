@@ -280,7 +280,7 @@ sub find_sub
 {
 	my ($self, $filename) = @_;
 
-	if ($filename =~ m|/lib([^/]*)\.so(\.[0-9.]*)$|o &&
+	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o &&
 	    exists($self->{used_libs}{"$1$2"})) {
 
 		# skip used-libs
@@ -302,7 +302,7 @@ sub find_sub
 {
 	my ($self, $filename) = @_;
 
-	if ($filename =~ m|/lib([^/]*)\.so(\.[0-9.]*)$|o) {
+	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o) {
 		my $wantlib = "$1$2";
 
 		print($filename, "\t", $self->{used_libs}{$wantlib}, "\n")
