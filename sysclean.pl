@@ -326,8 +326,12 @@ package OpenBSD::PackingElement::FileObject;
 sub walk_sysclean
 {
 	my ($item, $pkgname, $sc) = @_;
+	my $filename = $item->fullname;
 
-	$sc->{expected}{$item->fullname} = 1;
+	# link: /usr/local/lib/X11/app-defaults/ -> /etc/X11/app-defaults/
+	$filename =~ s|^/usr/local/lib/X11/app-defaults/|/etc/X11/app-defaults/|o;
+
+	$sc->{expected}{$filename} = 1;
 }
 
 package OpenBSD::PackingElement::Sampledir;
