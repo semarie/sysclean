@@ -194,6 +194,11 @@ sub add_user_ignored
 	open(my $fh, "<", "/etc/sysclean.ignore") || return;
 	while (<$fh>) {
 		chomp;
+
+		# strip comments
+		s/#.*$//;
+		continue if (m/^$/o);
+
 		$self->{ignored}{$_} = 1;
 	}
 	close($fh);
