@@ -80,6 +80,9 @@ environment variable.
 .It Pa /etc/sysclean.ignore
 Files to ignore from output.
 One per line.
+If the filename is a directory,
+.Nm
+will not explore it, so all files behind will be ignored too.
 .El
 .Sh EXAMPLES
 Obtain the list of outdated files (without used libraries from ports):
