@@ -205,7 +205,6 @@ sub add_user_ignored
 		continue if (m/^$/o);
 
 		foreach my $filename (glob qq("$_")) {
-			print "a ", $filename, "\n";
 			$self->{ignored}{$filename} = 1;
 		}
 	}
