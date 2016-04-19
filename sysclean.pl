@@ -112,7 +112,12 @@ sub init
 {
 	my ($self) = @_;
 
+	use OpenBSD::Pledge;
+
+	pledge('rpath proc exec') || $self->err(1, "pledge");
 	$self->add_expected_base;
+
+	pledge('rpath') || $self->err(1, "pledge");
 	$self->add_expected_ports_info;
 }
 
