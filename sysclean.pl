@@ -121,7 +121,7 @@ sub init
 	$self->add_expected_ports_info;
 }
 
-# add expected files from base
+# add expected files from base. call `add_expected_base_one' overriden method.
 # WARNING: `expected' attribute is overrided
 sub add_expected_base
 {
@@ -169,10 +169,18 @@ sub add_expected_base
 		'*') || $self->err(1, "can't read base locatedb");
 	while (<$cmd>) {
 		chomp;
-		my ($set, $path) = split(':', $_, 2);
-		$self->{expected}{$path} = 1;
+		my ($set, $filename) = split(':', $_, 2);
+		$self->add_expected_base_one($filename);
 	}
 	close($cmd);
+}
+
+# default method for manipulated one expected filename of base.
+sub add_expected_base_one
+{
+	my ($self, $filename) = @_;
+
+	$self->{expected}{$filename} = 1;
 }
 
 # add expected information from ports. the method will call `plist_reader'
@@ -267,6 +275,20 @@ sub find_sub
 package sysclean::files;
 use parent -norequire, qw(sysclean);
 
+use OpenBSD::LibSpec;
+
+sub add_expected_base_one
+{
+	my ($self, $filename) = @_;
+
+	$self->SUPER::add_expected_base_one($filename);
+
+	# track libraries (should not contains duplicate)
+	if ($filename =~ m|/lib([^/]+)\.so\.\d+\.\d+$|o) {
+		$self->{libs}{$1} = OpenBSD::Library->from_string($filename);
+	}
+}
+
 sub plist_reader
 {
 	return sub {
@@ -282,11 +304,23 @@ sub find_sub
 {
 	my ($self, $filename) = @_;
 
-	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o &&
-	    exists($self->{used_libs}{"$1$2"})) {
+	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o) {
 
-		# skip used-libs
-		return;
+		if (exists($self->{used_libs}{"$1$2"})) {
+			# skip used-libs (from ports)
+			return;
+		}
+
+		if (exists($self->{libs}{$1})) {
+			# skip if file from expected is not better than current
+			my $expectedlib = $self->{libs}{$1};
+			my $currentlib = OpenBSD::Library->from_string($filename);
+
+			if ($currentlib->is_better($expectedlib)) {
+				print STDERR "warn: discard better version: $filename\n";
+				return;
+			}
+		}
 	}
 
 	print($filename, "\n");
