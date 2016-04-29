@@ -25,10 +25,7 @@
 .Nd help removing obsolete files between upgrades
 .Sh SYNOPSIS
 .Nm
-.Fl f
-.Op Fl ai
-.Nm
-.Fl p
+.Fl f | a | p
 .Op Fl i
 .Sh DESCRIPTION
 .Nm
@@ -48,20 +45,21 @@ It only reports obsolete filenames or packages using out-of-date libraries.
 The options are as follows:
 .Bl -tag -width Ds
 .It Fl f
-Filename mode.
+File mode.
 .Nm
 will output obsolete filenames present on the system.
 By default, it doesn't show filenames used by installed packages.
 It will report on stderr libraries from base with better version than expected
 one.
+It is the default mode used.
+.It Fl a
+All files mode.
+.Nm
+will not exclude filenames used by installed packages from output.
 .It Fl p
 Package mode.
 .Nm
 will output packages names using obsolete files.
-.It Fl a
-All files.
-.Nm
-will not exclude filenames used by installed packages from output.
 .It Fl i
 With ignored.
 .Nm
@@ -104,7 +102,7 @@ Obtain the list of old libraries with package using it:
 .Pp
 Obtain the list of all outdated files (including used libraries):
 .Bd -literal -offset indent
-# sysclean -fa
+# sysclean -a
 /usr/lib/libc.so.83.0
 /usr/lib/libc.so.84.1
 .Ed

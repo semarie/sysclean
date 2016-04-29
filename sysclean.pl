@@ -28,7 +28,7 @@ sub subclass
 	my ($self, $options) = @_;
 	return 'sysclean::packages' if (defined $$options{p});
 	return 'sysclean::allfiles' if (defined $$options{a});
-	return 'sysclean::files'    if (defined $$options{f});
+	return 'sysclean::files';
 }
 
 # choose class for mode, depending on %options
@@ -38,9 +38,9 @@ sub create
 
 	my $with_ignored = !defined $$options{i};
 
-	sysclean->usage if ((!defined $$options{f} && !defined $$options{p}) ||
+	sysclean->usage if ((defined $$options{f} && defined $$options{a}) ||
 	    (defined $$options{f} && defined $$options{p}) ||
-	    (defined $$options{p} && defined $$options{a}));
+	    (defined $$options{a} && defined $$options{p}));
 
 	return $base->subclass($options)->new($with_ignored);
 }
@@ -61,8 +61,7 @@ sub new
 # print usage and exit
 sub usage
 {
-	print "usage: $0 -f [-ai]\n";
-	print "       $0 -p [-i]\n";
+	print "usage: $0 -f | -a | -p [-i]\n";
 	exit 1
 }
 
@@ -395,7 +394,7 @@ use Getopt::Std;
 my %options = ();	# program flags
 
 getopts("fpaih", \%options) || sysclean->usage;
-sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
+sysclean->usage if (defined $options{h});
 
 print STDERR "warn: need root privileges for complete listing\n" if ($> != 0);
 
