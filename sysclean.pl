@@ -216,7 +216,7 @@ sub add_user_ignored
 		chomp;
 
 		# strip comments
-		s/#.*$//;
+		s/\s*#.*$//;
 		next if (m/^$/o);
 
 		foreach my $filename (glob qq("$_")) {
