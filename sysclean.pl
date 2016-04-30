@@ -394,7 +394,7 @@ use Getopt::Std;
 my %options = ();	# program flags
 
 getopts("fpaih", \%options) || sysclean->usage;
-sysclean->usage if (defined $options{h});
+sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
 print STDERR "warn: need root privileges for complete listing\n" if ($> != 0);
 
