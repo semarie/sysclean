@@ -363,8 +363,9 @@ sub find_sub
 	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o) {
 		my $wantlib = "$1$2";
 
-		print($filename, "\t", $self->{used_libs}{$wantlib}, "\n")
-			if (exists($self->{used_libs}{$wantlib}));
+		for my $pkgname (@{$self->{used_libs}{$wantlib}}) {
+			print($filename, "\t", $pkgname, "\n")
+		}
 	}
 }
 
@@ -403,7 +404,7 @@ sub walk_sysclean
 {
 	my ($item, $pkgname, $sc) = @_;
 
-	$sc->{used_libs}{$item->name} = $pkgname;
+	push(@{$sc->{used_libs}{$item->name}}, $pkgname);
 }
 
 
