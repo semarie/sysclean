@@ -39,11 +39,19 @@
                 PKG_DBDIR environment variable.
 
 # FILES
-     /etc/sysclean.ignore  Patterns to ignore in filesystem walking. See
-                           File::Glob(3p) for syntax details.  One per line.
-                           If the pattern matches a directory, sysclean will
-                           not explore it, so all files behind will be ignored
-                           too.
+     /etc/sysclean.ignore  Each line of the file contains the name of a path
+                           to ignore during filesystem walking, specified by
+                           its absolute pathname, one per line.  Shell
+                           globbing is supported in pathnames, see
+                           File::Glob(3p) for syntax details.  If the pattern
+                           matches a directory, sysclean will not explore it,
+                           so all files behind will be ignored too.  For
+                           compatibility with changelist(5) file format, the
+                           character `+' is skipped at beginning of line.
+                           Additional files can be included with the @include
+                           keyword, for example:
+
+                                 @include "/etc/changelist"
 
 # EXAMPLES
      Obtain the list of outdated files (without used libraries from ports):

@@ -6,3 +6,6 @@
 /data
 /etc/*.local
 /upgrade.site
+
+# ignore files listed in changelist(5)
+@include "/etc/changelist"

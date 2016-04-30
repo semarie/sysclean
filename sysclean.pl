@@ -53,7 +53,7 @@ sub new
 
 	$self->init_ignored;
 	$self->init;
-	$self->add_user_ignored if ($with_ignored);
+	$self->add_user_ignored("/etc/sysclean.ignore") if ($with_ignored);
 
 	return $self;
 }
@@ -209,21 +209,36 @@ sub add_expected_ports_info
 # add user-defined `ignored' files
 sub add_user_ignored
 {
-	my $self = shift;
+	my ($self, $conffile) = @_;
 
-	open(my $fh, "<", "/etc/sysclean.ignore") || return;
+	open(my $fh, "<", $conffile) || return 0;
 	while (<$fh>) {
 		chomp;
+
+		# strip starting '+' (compat with changelist(5) format)
+		s/^\+//;
 
 		# strip comments
 		s/\s*#.*$//;
 		next if (m/^$/o);
 
-		foreach my $filename (glob qq("$_")) {
-			$self->{ignored}{$filename} = 1;
+		if (m/^\@include\s+"(.*)"\s*$/) {
+			# include another conffile
+			$self->add_user_ignored($1) ||
+			    $self->warn("open \"$1\": $!");
+
+		} elsif (m|^/|) {
+			# absolute filename
+			foreach my $filename (glob qq("$_")) {
+				$self->{ignored}{$filename} = 1;
+			}
+
+		} else {
+			$self->err(1, "$conffile: invalid entry: $_");
 		}
 	}
 	close($fh);
+	return 1;
 }
 
 # walk the filesystem. the method will call `find_sub' overriden method.

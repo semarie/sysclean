@@ -78,13 +78,24 @@ environment variable.
 .Sh FILES
 .Bl -tag -width "/etc/sysclean.ignore"
 .It Pa /etc/sysclean.ignore
-Patterns to ignore in filesystem walking. See
+Each line of the file contains the name of a path to ignore during filesystem
+walking, specified by its absolute pathname, one per line.
+Shell globbing is supported in pathnames, see
 .Xr File::Glob 3p
 for syntax details.
-One per line.
 If the pattern matches a directory,
 .Nm
 will not explore it, so all files behind will be ignored too.
+For compatibility with
+.Xr changelist 5
+file format, the character
+.Sq +
+is skipped at beginning of line.
+Additional files can be included with the
+.Ic @include
+keyword, for example:
+.Bd -literal -offset indent
+@include "/etc/changelist"
 .El
 .Sh EXAMPLES
 Obtain the list of outdated files (without used libraries from ports):
