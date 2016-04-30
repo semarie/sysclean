@@ -75,6 +75,14 @@ sub err
 	exit $exitcode;
 }
 
+# print warning
+sub warn
+{
+	my ($self, @rest) = @_;
+
+	print STDERR "$0: warn: @rest\n";
+}
+
 # initial list of ignored files and directories
 sub init_ignored
 {
@@ -316,7 +324,7 @@ sub find_sub
 			my $currentlib = OpenBSD::Library->from_string($filename);
 
 			if ($currentlib->is_better($expectedlib)) {
-				print STDERR "warn: discard better version: $filename\n";
+				$self->warn("discard better version: $filename");
 				return;
 			}
 		}
@@ -396,6 +404,6 @@ my %options = ();	# program flags
 getopts("fpaih", \%options) || sysclean->usage;
 sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
-print STDERR "warn: need root privileges for complete listing\n" if ($> != 0);
+sysclean->warn("need root privileges for complete listing") if ($> != 0);
 
 sysclean->create(\%options)->walk;
