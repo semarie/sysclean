@@ -26,9 +26,10 @@ package sysclean;
 sub subclass
 {
 	my ($self, $options) = @_;
-	return 'sysclean::packages' if (defined $$options{p});
+	return 'sysclean::files'    if (defined $$options{f});
 	return 'sysclean::allfiles' if (defined $$options{a});
-	return 'sysclean::files';
+	return 'sysclean::packages' if (defined $$options{p});
+	return 'sysclean::safefiles';
 }
 
 # choose class for mode, depending on %options
@@ -37,10 +38,13 @@ sub create
 	my ($base, $options) = @_;
 
 	my $with_ignored = !defined $$options{i};
+	my $mode_count = 0;
 
-	sysclean->usage if ((defined $$options{f} && defined $$options{a}) ||
-	    (defined $$options{f} && defined $$options{p}) ||
-	    (defined $$options{a} && defined $$options{p}));
+	$mode_count++ if (defined $$options{s});
+	$mode_count++ if (defined $$options{f});
+	$mode_count++ if (defined $$options{a});
+	$mode_count++ if (defined $$options{p});
+	sysclean->usage if ($mode_count > 1);
 
 	return $base->subclass($options)->new($with_ignored);
 }
@@ -61,7 +65,7 @@ sub new
 # print usage and exit
 sub usage
 {
-	print "usage: $0 [ -f | -a | -p ] [-i]\n";
+	print "usage: $0 [ -s | -f | -a | -p ] [-i]\n";
 	exit 1
 }
 
@@ -294,6 +298,39 @@ sub find_sub
 	print($filename, "\n");
 }
 
+package sysclean::safefiles;
+use parent -norequire, qw(sysclean);
+
+sub init_ignored
+{
+	my $self = shift;
+
+	$self->SUPER::init_ignored();
+
+	$self->{ignored}{'/etc'} = 1;
+}
+
+sub plist_reader
+{
+	return sub {
+	    my ($fh, $cont) = @_;
+	    while (<$fh>) {
+		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|extra|sample|bin)\b/o || !m/^\@/o;
+		    &$cont($_);
+	    };
+	}
+}
+
+sub find_sub
+{
+	my ($self, $filename) = @_;
+
+	# skip all libraries
+	return if ($filename =~ m|/lib[^/]+\.so[^/]*$|o);
+
+	print($filename, "\n");
+}
+
 package sysclean::files;
 use parent -norequire, qw(sysclean);
 
@@ -417,7 +454,7 @@ use Getopt::Std;
 
 my %options = ();	# program flags
 
-getopts("fpaih", \%options) || sysclean->usage;
+getopts("sfapih", \%options) || sysclean->usage;
 sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
 sysclean->warn("need root privileges for complete listing") if ($> != 0);

@@ -25,7 +25,7 @@
 .Nd help removing obsolete files between upgrades
 .Sh SYNOPSIS
 .Nm
-.Op Fl f | a | p
+.Op Fl s | f | a | p
 .Op Fl i
 .Sh DESCRIPTION
 .Nm
@@ -44,14 +44,22 @@ It only reports obsolete filenames or packages using out-of-date libraries.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl s
+Safe mode.
+.Nm
+will output obsolete filenames present on the system.
+It excludes any dynamic libraries and all files under
+.Pa /etc
+directory.
+It is the default mode used.
 .It Fl f
 File mode.
 .Nm
-will output obsolete filenames present on the system.
-By default, it doesn't show filenames used by installed packages.
-It will report on stderr libraries from base with better version than expected
-one.
-It is the default mode used.
+will showing additionnally old libraries that aren't used by any packages, and
+.Pa /etc
+will be inspected.
+Note that it will report on stderr libraries from base with better version than
+expected one.
 .It Fl a
 All files mode.
 .Nm

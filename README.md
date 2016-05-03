@@ -3,7 +3,7 @@
      sysclean - help removing obsolete files between upgrades
 
 # SYNOPSIS
-     sysclean [-f | -a | -p] [-i]
+     sysclean [-s | -f | -a | -p] [-i]
 
 # DESCRIPTION
      sysclean is a perl(1) script designed to help removing obsolete files
@@ -18,11 +18,14 @@
 
      The options are as follows:
 
-     -f      File mode.  sysclean will output obsolete filenames present on
-             the system.  By default, it doesn't show filenames used by
-             installed packages.  It will report on stderr libraries from base
-             with better version than expected one.  It is the default mode
-             used.
+     -s      Safe mode.  sysclean will output obsolete filenames present on
+             the system.  It excludes any dynamic libraries and all files
+             under /etc directory.  It is the default mode used.
+
+     -f      File mode.  sysclean will showing additionnally old libraries
+             that aren't used by any packages, and /etc will be inspected.
+             Note that it will report on stderr libraries from base with
+             better version than expected one.
 
      -a      All files mode.  sysclean will not exclude filenames used by
              installed packages from output.
