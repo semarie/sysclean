@@ -3,7 +3,7 @@
      sysclean - help removing obsolete files between upgrades
 
 # SYNOPSIS
-     sysclean -f | -a | -p [-i]
+     sysclean [-f | -a | -p] [-i]
 
 # DESCRIPTION
      sysclean is a perl(1) script designed to help removing obsolete files

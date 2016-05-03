@@ -61,7 +61,7 @@ sub new
 # print usage and exit
 sub usage
 {
-	print "usage: $0 -f | -a | -p [-i]\n";
+	print "usage: $0 [ -f | -a | -p ] [-i]\n";
 	exit 1
 }
 
