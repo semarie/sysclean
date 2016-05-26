@@ -143,6 +143,7 @@ sub add_expected_base
 		'/bsd.rd' => 1,
 		'/bsd.sp' => 1,
 		'/obsd' => 1,
+		'/etc/adduser.conf' => 1,
 		'/etc/fstab' => 1,
 		'/etc/hosts' => 1,
 		'/etc/iked/local.pub' => 1,
@@ -160,6 +161,7 @@ sub add_expected_base
 		'/etc/myname' => 1,
 		'/etc/pkg.conf' => 1,
 		'/etc/random.seed' => 1,
+		'/etc/usermgmt.conf' => 1,
 	};
 
 	# additionnal expected files, using pattern
