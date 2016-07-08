@@ -142,6 +142,7 @@ sub add_expected_base
 	$self->{expected} = {
 		'/' => 1,
 		'/boot' => 1,
+		'/ofwboot' => 1,
 		'/bsd' => 1,
 		'/bsd.mp' => 1,
 		'/bsd.rd' => 1,
