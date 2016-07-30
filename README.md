@@ -82,5 +82,5 @@
      rewritten using perl(1) in 2016.
 
 # AUTHORS
-     sysclean was written by Sebastien Marie <semarie@openbsd.org>.
+     sysclean was written by Sebastien Marie <semarie@online.fr>.
 
