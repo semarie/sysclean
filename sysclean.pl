@@ -150,6 +150,7 @@ sub add_expected_base
 		'/obsd' => 1,
 		'/etc/fstab' => 1,
 		'/etc/hosts' => 1,
+		'/etc/installurl' => 1,
 		'/etc/iked/local.pub' => 1,
 		'/etc/iked/private/local.key' => 1,
 		'/etc/isakmpd/local.pub' => 1,
@@ -163,7 +164,6 @@ sub add_expected_base
 		'/etc/ssh/ssh_host_ed25519_key' => 1,
 		'/etc/ssh/ssh_host_ed25519_key.pub' => 1,
 		'/etc/myname' => 1,
-		'/etc/pkg.conf' => 1,
 		'/etc/random.seed' => 1,
 	};
 
