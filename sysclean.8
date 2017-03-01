@@ -52,7 +52,7 @@ It is the default mode used.
 .It Fl f
 File mode.
 .Nm
-will showing additionnally old libraries that aren't used by any packages, and
+will additionnally show old libraries that aren't used by any packages, and
 .Pa /etc
 will be inspected.
 Note that it will report on stderr libraries from base with better version than
@@ -84,18 +84,18 @@ environment variable.
 .Bl -tag -width "/etc/sysclean.ignore"
 .It Pa /etc/sysclean.ignore
 Each line of the file contains the name of a path to ignore during filesystem
-walking, specified by its absolute pathname, one per line.
+walk, specified by its absolute pathname, one per line.
 Shell globbing is supported in pathnames, see
 .Xr File::Glob 3p
 for syntax details.
 If the pattern matches a directory,
 .Nm
-will not explore it, so all files behind will be ignored too.
+will not explore it, all files within will be ignored too.
 For compatibility with
 .Xr changelist 5
 file format, the character
 .Sq +
-is skipped at beginning of line.
+is skipped at the beginning of line.
 Additional files can be included with the
 .Ic @include
 keyword, for example:

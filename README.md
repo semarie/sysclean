@@ -22,10 +22,10 @@
              the system.  It excludes any dynamic libraries and all files
              under /etc directory.  It is the default mode used.
 
-     -f      File mode.  sysclean will showing additionnally old libraries
-             that aren't used by any packages, and /etc will be inspected.
-             Note that it will report on stderr libraries from base with
-             better version than expected one.
+     -f      File mode.  sysclean will additionnally show old libraries that
+             aren't used by any packages, and /etc will be inspected.  Note
+             that it will report on stderr libraries from base with better
+             version than expected one.
 
      -a      All files mode.  sysclean will not exclude filenames used by
              installed packages from output.
@@ -43,16 +43,16 @@
 
 # FILES
      /etc/sysclean.ignore  Each line of the file contains the name of a path
-                           to ignore during filesystem walking, specified by
-                           its absolute pathname, one per line.  Shell
-                           globbing is supported in pathnames, see
-                           File::Glob(3p) for syntax details.  If the pattern
-                           matches a directory, sysclean will not explore it,
-                           so all files behind will be ignored too.  For
-                           compatibility with changelist(5) file format, the
-                           character `+' is skipped at beginning of line.
-                           Additional files can be included with the @include
-                           keyword, for example:
+                           to ignore during filesystem walk, specified by its
+                           absolute pathname, one per line.  Shell globbing is
+                           supported in pathnames, see File::Glob(3p) for
+                           syntax details.  If the pattern matches a
+                           directory, sysclean will not explore it, all files
+                           within will be ignored too.  For compatibility with
+                           changelist(5) file format, the character `+' is
+                           skipped at the beginning of line.  Additional files
+                           can be included with the @include keyword, for
+                           example:
 
                                  @include "/etc/changelist"
 
