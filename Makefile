@@ -12,6 +12,6 @@ realinstall:
 		${.CURDIR}/${SCRIPT} ${DESTDIR}${BINDIR}/sysclean
 
 README.md: sysclean.8
-	mandoc -T ascii sysclean.8 | sed -e 's/.//g' -e '/^SYSCLEAN.*/d' -e '/^OpenBSD /d' -e 's/^\([A-Z]\)/# \1/' >$@
+	mandoc -T markdown sysclean.8 >$@
 
 .include <bsd.prog.mk>
