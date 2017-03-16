@@ -2,7 +2,7 @@ SYSCLEAN(8) - System Manager's Manual
 
 # NAME
 
-**sysclean** - help removing obsolete files between upgrades
+**sysclean** - list obsolete files between OpenBSD upgrades
 
 # SYNOPSIS
 
@@ -15,12 +15,12 @@ SYSCLEAN(8) - System Manager's Manual
 **sysclean**
 is a
 perl(1)
-script designed to help removing obsolete files between upgrades.
+script designed to help remove obsolete files between OpenBSD upgrades.
 
 **sysclean**
 works by comparing a reference root directory against currently installed files.
-It considers standard system files, configuration files installed by default,
-and packages files.
+It considers standard system files and configuration files installed by default,
+as well as packages files.
 
 **sysclean**
 doesn't remove any files on the system.
@@ -33,10 +33,10 @@ The options are as follows:
 > Safe mode.
 > **sysclean**
 > will output obsolete filenames present on the system.
-> It excludes any dynamic libraries and all files under
+> It excludes any dynamic libraries and all files under the
 > */etc*
 > directory.
-> It is the default mode used.
+> This is the default mode.
 
 **-f**
 
@@ -45,8 +45,7 @@ The options are as follows:
 > will additionnally show old libraries that aren't used by any packages, and
 > */etc*
 > will be inspected.
-> Note that it will report on stderr libraries from base with better version than
-> expected one.
+> It will report base libraries with versions newer than what's expected.
 
 **-a**
 
@@ -58,7 +57,7 @@ The options are as follows:
 
 > Package mode.
 > **sysclean**
-> will output packages names using obsolete files.
+> will output package names that are using obsolete files.
 
 **-i**
 
@@ -81,15 +80,15 @@ The options are as follows:
 
 */etc/sysclean.ignore*
 
-> Each line of the file contains the name of a path to ignore during filesystem
-> walk, specified by its absolute pathname, one per line.
-> Shell globbing is supported in pathnames, see
+> Each line of this file contains the name of a path to ignore during the
+> filesystem walk, specified by its absolute pathname, one per line.
+> Shell globbing is supported in pathnames; see
 > File::Glob(3p)
 > for syntax details.
 > If the pattern matches a directory,
 > **sysclean**
-> will not explore it, all files within will be ignored too.
-> For compatibility with
+> will not inspect it or any files contained within.
+> For compatibility with the
 > changelist(5)
 > file format, the character
 > '+'
@@ -102,18 +101,18 @@ The options are as follows:
 
 # EXAMPLES
 
-Obtain the list of outdated files (without used libraries from ports):
+Obtain a list of outdated files (without libraries used by packages):
 
 	# sysclean -f
 	/usr/lib/libc.so.83.0
 
-Obtain the list of old libraries with package using it:
+Obtain a list of old libraries and the package using it:
 
 	# sysclean -p
 	/usr/lib/libc.so.84.1   git-2.7.0
 	/usr/lib/libc.so.84.1   gmake-4.1p0
 
-Obtain the list of all outdated files (including used libraries):
+Obtain a list of all outdated files (including used libraries):
 
 	# sysclean -a
 	/usr/lib/libc.so.83.0
