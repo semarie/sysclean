@@ -2,7 +2,7 @@
 #
 # $OpenBSD$
 #
-# Copyright (c) 2016 Sebastien Marie <semarie@online.fr>
+# Copyright (c) 2016-2017 Sebastien Marie <semarie@online.fr>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
