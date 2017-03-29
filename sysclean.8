@@ -31,12 +31,11 @@ is a
 script designed to help remove obsolete files between OpenBSD upgrades.
 .Pp
 .Nm
-works by comparing a reference root directory against currently installed files.
-It considers standard system files and configuration files installed by default,
-as well as packages files.
+compares a reference root directory against the currently installed files,
+taking files from both the base system and packages into account.
 .Pp
 .Nm
-doesn't remove any files on the system.
+does not remove any files on the system.
 It only reports obsolete filenames or packages using out-of-date libraries.
 .Pp
 The options are as follows:
@@ -44,7 +43,7 @@ The options are as follows:
 .It Fl s
 Safe mode.
 .Nm
-will output obsolete filenames present on the system.
+lists obsolete filenames on the system.
 It excludes any dynamic libraries and all files under the
 .Pa /etc
 directory.
@@ -52,7 +51,7 @@ This is the default mode.
 .It Fl f
 File mode.
 .Nm
-will additionnally show old libraries that aren't used by any packages, and
+will additionally show old libraries that aren't used by any packages, and
 .Pa /etc
 will be inspected.
 It will report base libraries with versions newer than what's expected.
@@ -67,7 +66,7 @@ will output package names that are using obsolete files.
 .It Fl i
 With ignored.
 .Nm
-will not exclude filenames normally ignored using
+will include filenames that are ignored by default, using
 .Pa /etc/sysclean.ignore .
 .El
 .Sh ENVIRONMENT
@@ -82,11 +81,9 @@ environment variable.
 .Sh FILES
 .Bl -tag -width "/etc/sysclean.ignore"
 .It Pa /etc/sysclean.ignore
-Each line of this file contains the name of a path to ignore during the
-filesystem walk, specified by its absolute pathname, one per line.
+Files to ignore, one per line, with absolute pathnames.
 Shell globbing is supported in pathnames; see
-.Xr File::Glob 3p
-for syntax details.
+.Xr File::Glob 3p .
 If the pattern matches a directory,
 .Nm
 will not inspect it or any files contained within.
@@ -94,7 +91,7 @@ For compatibility with the
 .Xr changelist 5
 file format, the character
 .Sq +
-is skipped at the beginning of line.
+is skipped at the beginning of a line.
 Additional files can be included with the
 .Ic @include
 keyword, for example:

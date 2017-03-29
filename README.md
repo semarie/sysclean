@@ -18,12 +18,11 @@ perl(1)
 script designed to help remove obsolete files between OpenBSD upgrades.
 
 **sysclean**
-works by comparing a reference root directory against currently installed files.
-It considers standard system files and configuration files installed by default,
-as well as packages files.
+compares a reference root directory against the currently installed files,
+taking files from both the base system and packages into account.
 
 **sysclean**
-doesn't remove any files on the system.
+does not remove any files on the system.
 It only reports obsolete filenames or packages using out-of-date libraries.
 
 The options are as follows:
@@ -32,7 +31,7 @@ The options are as follows:
 
 > Safe mode.
 > **sysclean**
-> will output obsolete filenames present on the system.
+> lists obsolete filenames on the system.
 > It excludes any dynamic libraries and all files under the
 > */etc*
 > directory.
@@ -42,7 +41,7 @@ The options are as follows:
 
 > File mode.
 > **sysclean**
-> will additionnally show old libraries that aren't used by any packages, and
+> will additionally show old libraries that aren't used by any packages, and
 > */etc*
 > will be inspected.
 > It will report base libraries with versions newer than what's expected.
@@ -63,7 +62,7 @@ The options are as follows:
 
 > With ignored.
 > **sysclean**
-> will not exclude filenames normally ignored using
+> will include filenames that are ignored by default, using
 > */etc/sysclean.ignore*.
 
 # ENVIRONMENT
@@ -80,11 +79,9 @@ The options are as follows:
 
 */etc/sysclean.ignore*
 
-> Each line of this file contains the name of a path to ignore during the
-> filesystem walk, specified by its absolute pathname, one per line.
+> Files to ignore, one per line, with absolute pathnames.
 > Shell globbing is supported in pathnames; see
-> File::Glob(3p)
-> for syntax details.
+> File::Glob(3p).
 > If the pattern matches a directory,
 > **sysclean**
 > will not inspect it or any files contained within.
@@ -92,7 +89,7 @@ The options are as follows:
 > changelist(5)
 > file format, the character
 > '+'
-> is skipped at the beginning of line.
+> is skipped at the beginning of a line.
 > Additional files can be included with the
 > **@include**
 > keyword, for example:
@@ -139,4 +136,4 @@ in 2016.
 was written by
 Sebastien Marie &lt;[semarie@online.fr](mailto:semarie@online.fr)&gt;.
 
-OpenBSD 6.1 - March 16, 2017
+OpenBSD 6.1 - March 29, 2017
