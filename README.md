@@ -103,7 +103,7 @@ Obtain a list of outdated files (without libraries used by packages):
 	# sysclean -f
 	/usr/lib/libc.so.83.0
 
-Obtain a list of old libraries and the package using it:
+Obtain a list of old libraries and the package using them:
 
 	# sysclean -p
 	/usr/lib/libc.so.84.1   git-2.7.0
