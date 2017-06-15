@@ -39,7 +39,6 @@ sub create
 	my $with_ignored = !defined $$options{i};
 	my $mode_count = 0;
 
-	$mode_count++ if (defined $$options{f});
 	$mode_count++ if (defined $$options{a});
 	$mode_count++ if (defined $$options{p});
 	sysclean->usage if ($mode_count > 1);
@@ -68,7 +67,7 @@ sub new
 # print usage and exit
 sub usage
 {
-	print "usage: $0 [ -f | -a | -p ] [-i]\n";
+	print "usage: $0 [ -a | -p ] [-i]\n";
 	exit 1
 }
 
@@ -466,7 +465,7 @@ use Getopt::Std;
 
 my %options = ();	# program flags
 
-getopts("fapih", \%options) || sysclean->usage;
+getopts("apih", \%options) || sysclean->usage;
 sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
 sysclean->err(1, "need root privileges") if ($> != 0);

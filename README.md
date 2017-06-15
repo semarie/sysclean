@@ -7,7 +7,7 @@ SYSCLEAN(8) - System Manager's Manual
 # SYNOPSIS
 
 **sysclean**
-\[**-f**&nbsp;|&nbsp;**-a**&nbsp;|&nbsp;**-p**]
+\[**-a**&nbsp;|&nbsp;**-p**]
 \[**-i**]
 
 # DESCRIPTION
@@ -25,17 +25,13 @@ taking files from both the base system and packages into account.
 does not remove any files on the system.
 It only reports obsolete filenames or packages using out-of-date libraries.
 
+By default,
+**sysclean**
+lists obsolete filenames on the system.
+It excludes any used dynamic libraries.
+It will report base libraries with versions newer than what's expected.
+
 The options are as follows:
-
-**-f**
-
-> File mode.
-> **sysclean**
-> will additionally show old libraries that aren't used by any packages, and
-> */etc*
-> will be inspected.
-> It will report base libraries with versions newer than what's expected.
-> This is the default mode.
 
 **-a**
 
@@ -91,7 +87,7 @@ The options are as follows:
 
 Obtain a list of outdated files (without libraries used by packages):
 
-	# sysclean -f
+	# sysclean
 	/usr/lib/libc.so.83.0
 
 Obtain a list of old libraries and the package using them:
