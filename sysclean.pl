@@ -133,6 +133,7 @@ sub init
 
 	pledge('rpath proc exec') || $self->err(1, "pledge");
 	$self->add_expected_base;
+	$self->add_expected_rcctl;
 
 	pledge('rpath') || $self->err(1, "pledge");
 	$self->add_expected_ports_info;
@@ -199,6 +200,45 @@ sub add_expected_base_one
 	my ($self, $filename) = @_;
 
 	$self->{expected}{$filename} = 1;
+}
+
+# add expected files from enabled daemons and services.
+sub add_expected_rcctl
+{
+	my $self = shift;
+
+	open(my $cmd, '-|', 'rcctl', 'ls', 'on') ||
+		$self->err(1, "can't read enabled daemons and services");
+	while (<$cmd>) {
+		chomp;
+		if ('apmd' eq $_) {
+			$self->{expected}{'/etc/apm'} = 1;
+			$self->{expected}{'/etc/apm/suspend'} = 1;
+			$self->{expected}{'/etc/apm/hibernate'} = 1;
+			$self->{expected}{'/etc/apm/standby'} = 1;
+			$self->{expected}{'/etc/apm/resume'} = 1;
+			$self->{expected}{'/etc/apm/powerup'} = 1;
+			$self->{expected}{'/etc/apm/powerdown'} = 1;
+
+		} elsif ('hotplugd' eq $_) {
+			$self->{expected}{'/etc/hotplug/attach'} = 1;
+			$self->{expected}{'/etc/hotplug/detach'} = 1;
+
+		} elsif ('lpd' eq $_) {
+			$self->{ignored}{'/etc/printcap'} = 1;
+			$self->{ignored}{'/var/spool/output/lpd'} = 1;
+
+		} elsif ('smtpd' eq $_) {
+			$self->{expected}{'/etc/mail/aliases.db'} = 1;
+
+		} elsif ('unbound' eq $_) {
+			$self->{expected}{'/var/unbound/db/root.key'} = 1;
+
+		} elsif ('xenodm' eq $_) {
+			$self->{ignored}{'/etc/X11/xenodm/authdir'} = 1;
+		}
+	}
+	close($cmd);
 }
 
 # add expected information from ports. the method will call `plist_reader'
