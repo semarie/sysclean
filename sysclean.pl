@@ -57,7 +57,10 @@ sub new
 
 	$self->init_ignored;
 	$self->init;
-	$self->add_user_ignored("/etc/sysclean.ignore") if ($with_ignored);
+	if ($with_ignored) {
+		$self->add_user_ignored("/etc/changelist");
+		$self->add_user_ignored("/etc/sysclean.ignore");
+	}
 
 	return $self;
 }
