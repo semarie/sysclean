@@ -115,11 +115,17 @@ sub init_ignored
 		'/var/run' => 1,
 		'/var/spool/smtpd' => 1,
 		'/var/sysmerge' => 1,
+		'/var/syspatch' => 1,
                 '/var/www/htdocs' => 1,
 		'/var/www/logs' => 1,
 		'/var/www/run' => 1,
 		'/var/www/tmp' => 1,
 	};
+
+	# additionnal ignored files, using pattern
+	foreach my $filename (</bsd.syspatch*>) {
+		$self->{ignored}{$filename} = 1;
+	}
 }
 
 sub init
