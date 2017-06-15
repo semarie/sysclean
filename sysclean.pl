@@ -458,6 +458,6 @@ my %options = ();	# program flags
 getopts("sfapih", \%options) || sysclean->usage;
 sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
-sysclean->warn("need root privileges for complete listing") if ($> != 0);
+sysclean->err(1, "need root privileges") if ($> != 0);
 
 sysclean->create(\%options)->walk;
