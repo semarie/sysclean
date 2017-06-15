@@ -77,11 +77,11 @@ The options are as follows:
 > file format, the character
 > '+'
 > is skipped at the beginning of a line.
-> Additional files can be included with the
-> **@include**
-> keyword, for example:
+
+> Some files are implictly included:
 
 > > @include "/etc/changelist"
+> > @include "/etc/sysmerge.ignore"
 
 # EXAMPLES
 

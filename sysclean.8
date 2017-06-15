@@ -83,11 +83,11 @@ For compatibility with the
 file format, the character
 .Sq +
 is skipped at the beginning of a line.
-Additional files can be included with the
-.Ic @include
-keyword, for example:
+.Pp
+Some files are implictly included:
 .Bd -literal -offset indent
 @include "/etc/changelist"
+@include "/etc/sysmerge.ignore"
 .Ed
 .El
 .Sh EXAMPLES
