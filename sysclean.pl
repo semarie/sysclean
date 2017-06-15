@@ -59,6 +59,7 @@ sub new
 	$self->init;
 	if ($with_ignored) {
 		$self->add_user_ignored("/etc/changelist");
+		$self->add_user_ignored("/etc/sysmerge.ignore");
 		$self->add_user_ignored("/etc/sysclean.ignore");
 		$self->{expected}{'/etc/sysclean.ignore'} = 1;
 	}
