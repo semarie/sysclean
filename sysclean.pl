@@ -26,10 +26,9 @@ package sysclean;
 sub subclass
 {
 	my ($self, $options) = @_;
-	return 'sysclean::files'    if (defined $$options{f});
 	return 'sysclean::allfiles' if (defined $$options{a});
 	return 'sysclean::packages' if (defined $$options{p});
-	return 'sysclean::safefiles';
+	return 'sysclean::files';
 }
 
 # choose class for mode, depending on %options
@@ -40,7 +39,6 @@ sub create
 	my $with_ignored = !defined $$options{i};
 	my $mode_count = 0;
 
-	$mode_count++ if (defined $$options{s});
 	$mode_count++ if (defined $$options{f});
 	$mode_count++ if (defined $$options{a});
 	$mode_count++ if (defined $$options{p});
@@ -70,7 +68,7 @@ sub new
 # print usage and exit
 sub usage
 {
-	print "usage: $0 [ -s | -f | -a | -p ] [-i]\n";
+	print "usage: $0 [ -f | -a | -p ] [-i]\n";
 	exit 1
 }
 
@@ -345,39 +343,6 @@ sub find_sub
 	print($filename, "\n");
 }
 
-package sysclean::safefiles;
-use parent -norequire, qw(sysclean);
-
-sub init_ignored
-{
-	my $self = shift;
-
-	$self->SUPER::init_ignored();
-
-	$self->{ignored}{'/etc'} = 1;
-}
-
-sub plist_reader
-{
-	return sub {
-	    my ($fh, $cont) = @_;
-	    while (<$fh>) {
-		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|extra|sample|bin)\b/o || !m/^\@/o;
-		    &$cont($_);
-	    };
-	}
-}
-
-sub find_sub
-{
-	my ($self, $filename) = @_;
-
-	# skip all libraries
-	return if ($filename =~ m|/lib[^/]+\.so[^/]*$|o);
-
-	print($filename, "\n");
-}
-
 package sysclean::files;
 use parent -norequire, qw(sysclean);
 
@@ -501,7 +466,7 @@ use Getopt::Std;
 
 my %options = ();	# program flags
 
-getopts("sfapih", \%options) || sysclean->usage;
+getopts("fapih", \%options) || sysclean->usage;
 sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
 sysclean->err(1, "need root privileges") if ($> != 0);

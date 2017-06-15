@@ -7,7 +7,7 @@ SYSCLEAN(8) - System Manager's Manual
 # SYNOPSIS
 
 **sysclean**
-\[**-s**&nbsp;|&nbsp;**-f**&nbsp;|&nbsp;**-a**&nbsp;|&nbsp;**-p**]
+\[**-f**&nbsp;|&nbsp;**-a**&nbsp;|&nbsp;**-p**]
 \[**-i**]
 
 # DESCRIPTION
@@ -27,16 +27,6 @@ It only reports obsolete filenames or packages using out-of-date libraries.
 
 The options are as follows:
 
-**-s**
-
-> Safe mode.
-> **sysclean**
-> lists obsolete filenames on the system.
-> It excludes any dynamic libraries and all files under the
-> */etc*
-> directory.
-> This is the default mode.
-
 **-f**
 
 > File mode.
@@ -45,6 +35,7 @@ The options are as follows:
 > */etc*
 > will be inspected.
 > It will report base libraries with versions newer than what's expected.
+> This is the default mode.
 
 **-a**
 
@@ -136,4 +127,4 @@ in 2016.
 was written by
 Sebastien Marie &lt;[semarie@online.fr](mailto:semarie@online.fr)&gt;.
 
-OpenBSD 6.1 - March 29, 2017
+OpenBSD 6.1 - June 15, 2017
