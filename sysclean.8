@@ -84,11 +84,8 @@ file format, the character
 .Sq +
 is skipped at the beginning of a line.
 .Pp
-Some files are implictly included:
-.Bd -literal -offset indent
-@include "/etc/changelist"
-@include "/etc/sysmerge.ignore"
-.Ed
+.Pa /etc/changelist
+is implictly included.
 .El
 .Sh EXAMPLES
 Obtain a list of outdated files (without libraries used by packages):

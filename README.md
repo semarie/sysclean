@@ -78,10 +78,8 @@ The options are as follows:
 > '+'
 > is skipped at the beginning of a line.
 
-> Some files are implictly included:
-
-> > @include "/etc/changelist"
-> > @include "/etc/sysmerge.ignore"
+> */etc/changelist*
+> is implictly included.
 
 # EXAMPLES
 
@@ -123,4 +121,4 @@ in 2016.
 was written by
 Sebastien Marie &lt;[semarie@online.fr](mailto:semarie@online.fr)&gt;.
 
-OpenBSD 6.1 - June 15, 2017
+OpenBSD 6.1 - June 16, 2017
