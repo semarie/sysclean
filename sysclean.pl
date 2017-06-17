@@ -228,7 +228,7 @@ sub add_expected_rcctl
 			$self->{expected}{'/etc/hotplug/detach'} = 1;
 
 		} elsif ('lpd' eq $_) {
-			$self->{ignored}{'/etc/printcap'} = 1;
+			$self->{expected}{'/etc/printcap'} = 1;
 			$self->{ignored}{'/var/spool/output/lpd'} = 1;
 
 		} elsif ('smtpd' eq $_) {
