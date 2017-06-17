@@ -22,7 +22,7 @@
 .Nd list obsolete files between OpenBSD upgrades
 .Sh SYNOPSIS
 .Nm
-.Op Fl s | f | a | p
+.Op Fl a | p
 .Op Fl i
 .Sh DESCRIPTION
 .Nm
@@ -38,23 +38,14 @@ taking files from both the base system and packages into account.
 does not remove any files on the system.
 It only reports obsolete filenames or packages using out-of-date libraries.
 .Pp
-The options are as follows:
-.Bl -tag -width Ds
-.It Fl s
-Safe mode.
+By default,
 .Nm
 lists obsolete filenames on the system.
-It excludes any dynamic libraries and all files under the
-.Pa /etc
-directory.
-This is the default mode.
-.It Fl f
-File mode.
-.Nm
-will additionally show old libraries that aren't used by any packages, and
-.Pa /etc
-will be inspected.
+It excludes any used dynamic libraries.
 It will report base libraries with versions newer than what's expected.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
 .It Fl a
 All files mode.
 .Nm
@@ -92,17 +83,14 @@ For compatibility with the
 file format, the character
 .Sq +
 is skipped at the beginning of a line.
-Additional files can be included with the
-.Ic @include
-keyword, for example:
-.Bd -literal -offset indent
-@include "/etc/changelist"
-.Ed
+.Pp
+.Pa /etc/changelist
+is implictly included.
 .El
 .Sh EXAMPLES
 Obtain a list of outdated files (without libraries used by packages):
 .Bd -literal -offset indent
-# sysclean -f
+# sysclean
 /usr/lib/libc.so.83.0
 .Ed
 .Pp

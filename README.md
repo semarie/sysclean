@@ -7,7 +7,7 @@ SYSCLEAN(8) - System Manager's Manual
 # SYNOPSIS
 
 **sysclean**
-\[**-s**&nbsp;|&nbsp;**-f**&nbsp;|&nbsp;**-a**&nbsp;|&nbsp;**-p**]
+\[**-a**&nbsp;|&nbsp;**-p**]
 \[**-i**]
 
 # DESCRIPTION
@@ -25,26 +25,13 @@ taking files from both the base system and packages into account.
 does not remove any files on the system.
 It only reports obsolete filenames or packages using out-of-date libraries.
 
+By default,
+**sysclean**
+lists obsolete filenames on the system.
+It excludes any used dynamic libraries.
+It will report base libraries with versions newer than what's expected.
+
 The options are as follows:
-
-**-s**
-
-> Safe mode.
-> **sysclean**
-> lists obsolete filenames on the system.
-> It excludes any dynamic libraries and all files under the
-> */etc*
-> directory.
-> This is the default mode.
-
-**-f**
-
-> File mode.
-> **sysclean**
-> will additionally show old libraries that aren't used by any packages, and
-> */etc*
-> will be inspected.
-> It will report base libraries with versions newer than what's expected.
 
 **-a**
 
@@ -90,17 +77,15 @@ The options are as follows:
 > file format, the character
 > '+'
 > is skipped at the beginning of a line.
-> Additional files can be included with the
-> **@include**
-> keyword, for example:
 
-> > @include "/etc/changelist"
+> */etc/changelist*
+> is implictly included.
 
 # EXAMPLES
 
 Obtain a list of outdated files (without libraries used by packages):
 
-	# sysclean -f
+	# sysclean
 	/usr/lib/libc.so.83.0
 
 Obtain a list of old libraries and the package using them:
@@ -136,4 +121,4 @@ in 2016.
 was written by
 Sebastien Marie &lt;[semarie@online.fr](mailto:semarie@online.fr)&gt;.
 
-OpenBSD 6.1 - March 29, 2017
+OpenBSD 6.1 - June 16, 2017

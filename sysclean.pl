@@ -26,10 +26,9 @@ package sysclean;
 sub subclass
 {
 	my ($self, $options) = @_;
-	return 'sysclean::files'    if (defined $$options{f});
 	return 'sysclean::allfiles' if (defined $$options{a});
 	return 'sysclean::packages' if (defined $$options{p});
-	return 'sysclean::safefiles';
+	return 'sysclean::files';
 }
 
 # choose class for mode, depending on %options
@@ -40,8 +39,6 @@ sub create
 	my $with_ignored = !defined $$options{i};
 	my $mode_count = 0;
 
-	$mode_count++ if (defined $$options{s});
-	$mode_count++ if (defined $$options{f});
 	$mode_count++ if (defined $$options{a});
 	$mode_count++ if (defined $$options{p});
 	sysclean->usage if ($mode_count > 1);
@@ -57,7 +54,11 @@ sub new
 
 	$self->init_ignored;
 	$self->init;
-	$self->add_user_ignored("/etc/sysclean.ignore") if ($with_ignored);
+	if ($with_ignored) {
+		$self->add_user_ignored("/etc/changelist");
+		$self->add_user_ignored("/etc/sysclean.ignore");
+		$self->{expected}{'/etc/sysclean.ignore'} = 1;
+	}
 
 	return $self;
 }
@@ -65,7 +66,7 @@ sub new
 # print usage and exit
 sub usage
 {
-	print "usage: $0 [ -s | -f | -a | -p ] [-i]\n";
+	print "usage: $0 [ -a | -p ] [-i]\n";
 	exit 1
 }
 
@@ -100,6 +101,7 @@ sub init_ignored
 		'/usr/local' => 1, # remove ?
 		'/usr/obj' => 1,
 		'/usr/ports' => 1,
+		'/usr/share/compile' => 1,
 		'/usr/src' => 1,
 		'/usr/xenocara' => 1,
                 '/usr/xobj' => 1,
@@ -112,11 +114,17 @@ sub init_ignored
 		'/var/run' => 1,
 		'/var/spool/smtpd' => 1,
 		'/var/sysmerge' => 1,
+		'/var/syspatch' => 1,
                 '/var/www/htdocs' => 1,
 		'/var/www/logs' => 1,
 		'/var/www/run' => 1,
 		'/var/www/tmp' => 1,
 	};
+
+	# additionnal ignored files, using pattern
+	foreach my $filename (</bsd.syspatch*>) {
+		$self->{ignored}{$filename} = 1;
+	}
 }
 
 sub init
@@ -127,6 +135,7 @@ sub init
 
 	pledge('rpath proc exec') || $self->err(1, "pledge");
 	$self->add_expected_base;
+	$self->add_expected_rcctl;
 
 	pledge('rpath') || $self->err(1, "pledge");
 	$self->add_expected_ports_info;
@@ -193,6 +202,45 @@ sub add_expected_base_one
 	my ($self, $filename) = @_;
 
 	$self->{expected}{$filename} = 1;
+}
+
+# add expected files from enabled daemons and services.
+sub add_expected_rcctl
+{
+	my $self = shift;
+
+	open(my $cmd, '-|', 'rcctl', 'ls', 'on') ||
+		$self->err(1, "can't read enabled daemons and services");
+	while (<$cmd>) {
+		chomp;
+		if ('apmd' eq $_) {
+			$self->{expected}{'/etc/apm'} = 1;
+			$self->{expected}{'/etc/apm/suspend'} = 1;
+			$self->{expected}{'/etc/apm/hibernate'} = 1;
+			$self->{expected}{'/etc/apm/standby'} = 1;
+			$self->{expected}{'/etc/apm/resume'} = 1;
+			$self->{expected}{'/etc/apm/powerup'} = 1;
+			$self->{expected}{'/etc/apm/powerdown'} = 1;
+
+		} elsif ('hotplugd' eq $_) {
+			$self->{expected}{'/etc/hotplug/attach'} = 1;
+			$self->{expected}{'/etc/hotplug/detach'} = 1;
+
+		} elsif ('lpd' eq $_) {
+			$self->{ignored}{'/etc/printcap'} = 1;
+			$self->{ignored}{'/var/spool/output/lpd'} = 1;
+
+		} elsif ('smtpd' eq $_) {
+			$self->{expected}{'/etc/mail/aliases.db'} = 1;
+
+		} elsif ('unbound' eq $_) {
+			$self->{expected}{'/var/unbound/db/root.key'} = 1;
+
+		} elsif ('xenodm' eq $_) {
+			$self->{ignored}{'/etc/X11/xenodm/authdir'} = 1;
+		}
+	}
+	close($cmd);
 }
 
 # add expected information from ports. the method will call `plist_reader'
@@ -295,39 +343,6 @@ sub plist_reader
 sub find_sub
 {
 	my ($self, $filename) = @_;
-
-	print($filename, "\n");
-}
-
-package sysclean::safefiles;
-use parent -norequire, qw(sysclean);
-
-sub init_ignored
-{
-	my $self = shift;
-
-	$self->SUPER::init_ignored();
-
-	$self->{ignored}{'/etc'} = 1;
-}
-
-sub plist_reader
-{
-	return sub {
-	    my ($fh, $cont) = @_;
-	    while (<$fh>) {
-		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|extra|sample|bin)\b/o || !m/^\@/o;
-		    &$cont($_);
-	    };
-	}
-}
-
-sub find_sub
-{
-	my ($self, $filename) = @_;
-
-	# skip all libraries
-	return if ($filename =~ m|/lib[^/]+\.so[^/]*$|o);
 
 	print($filename, "\n");
 }
@@ -455,9 +470,9 @@ use Getopt::Std;
 
 my %options = ();	# program flags
 
-getopts("sfapih", \%options) || sysclean->usage;
+getopts("apih", \%options) || sysclean->usage;
 sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
-sysclean->warn("need root privileges for complete listing") if ($> != 0);
+sysclean->err(1, "need root privileges") if ($> != 0);
 
 sysclean->create(\%options)->walk;
