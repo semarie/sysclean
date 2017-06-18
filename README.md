@@ -15,7 +15,9 @@ SYSCLEAN(8) - System Manager's Manual
 **sysclean**
 is a
 perl(1)
-script designed to help remove obsolete files between OpenBSD upgrades.
+script designed to help remove obsolete files between
+OpenBSD
+upgrades.
 
 **sysclean**
 compares a reference root directory against the currently installed files,
@@ -121,4 +123,4 @@ in 2016.
 was written by
 Sebastien Marie &lt;[semarie@online.fr](mailto:semarie@online.fr)&gt;.
 
-OpenBSD 6.1 - June 16, 2017
+OpenBSD 6.1 - June 18, 2017
