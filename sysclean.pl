@@ -405,6 +405,11 @@ sub find_sub
 package sysclean::packages;
 use parent -norequire, qw(sysclean);
 
+sub add_expected_rcctl
+{
+	# skip add_expected_rcctl: it shouldn't contain libraries
+}
+
 sub plist_reader
 {
 	return \&OpenBSD::PackingList::DependOnly;
