@@ -153,6 +153,7 @@ sub add_expected_base
 		'/boot' => 1,
 		'/ofwboot' => 1,
 		'/bsd' => 1,
+		'/bsd.booted' => 1,
 		'/bsd.mp' => 1,
 		'/bsd.rd' => 1,
 		'/bsd.sp' => 1,
