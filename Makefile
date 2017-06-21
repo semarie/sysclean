@@ -20,16 +20,20 @@ regress: run-regress-perl-syntax \
 	run-regress-man-date
 
 run-regress-perl-syntax:
-	perl -c sysclean.pl
+	@echo TEST: perl syntax
+	@perl -c sysclean.pl
 
 run-regress-man-lint:
-	mandoc -T lint sysclean.8
+	@echo TEST: man page lint
+	@mandoc -T lint sysclean.8 || mandoc -T lint -W warning sysclean.8
 
 run-regress-man-readme:
-	mandoc -T markdown sysclean.8 | diff -q README.md -
+	@echo TEST: README.md sync
+	@mandoc -T markdown sysclean.8 | diff -q README.md -
 
 run-regress-man-date:
-	if [ -d .git ]; then \
+	@echo TEST: man page date
+	@if [ -d .git ]; then \
 		grep -qF -- \
 			"$$(date -r $$(git log -1 --format="%ct" sysclean.8) \
 				+'.Dd %B %d, %Y')" \
