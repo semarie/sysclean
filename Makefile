@@ -25,7 +25,7 @@ run-regress-perl-syntax:
 
 run-regress-man-lint:
 	@echo TEST: man page lint
-	@mandoc -T lint sysclean.8 || mandoc -T lint -W warning sysclean.8
+	@mandoc -T lint -W style sysclean.8
 
 run-regress-man-readme:
 	@echo TEST: README.md sync
