@@ -215,7 +215,15 @@ sub add_expected_rcctl
 		$self->err(1, "can't read enabled daemons and services");
 	while (<$cmd>) {
 		chomp;
-		if ('apmd' eq $_) {
+		if ('accounting' eq $_) {
+			$self->{expected}{'/var/account/acct'} = 1;
+			$self->{expected}{'/var/account/acct.0'} = 1;
+			$self->{expected}{'/var/account/acct.1'} = 1;
+			$self->{expected}{'/var/account/acct.2'} = 1;
+			$self->{expected}{'/var/account/acct.3'} = 1;
+			$self->{expected}{'/var/account/savacct'} = 1;
+			$self->{expected}{'/var/account/usracct'} = 1;
+		} elsif ('apmd' eq $_) {
 			$self->{expected}{'/etc/apm'} = 1;
 			$self->{expected}{'/etc/apm/suspend'} = 1;
 			$self->{expected}{'/etc/apm/hibernate'} = 1;
