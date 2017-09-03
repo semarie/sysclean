@@ -176,6 +176,7 @@ sub add_expected_base
 		'/etc/ssh/ssh_host_ed25519_key.pub' => 1,
 		'/etc/myname' => 1,
 		'/etc/random.seed' => 1,
+		'/usr/libexec/ld.so.save' => 1,
 	};
 
 	# additionnal expected files, using pattern
