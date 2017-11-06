@@ -101,7 +101,7 @@ sub init_ignored
 		'/usr/local' => 1, # remove ?
 		'/usr/obj' => 1,
 		'/usr/ports' => 1,
-		'/usr/share/compile' => 1,
+		'/usr/share/relink/kernel' => 1,
 		'/usr/src' => 1,
 		'/usr/xenocara' => 1,
                 '/usr/xobj' => 1,
