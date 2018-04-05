@@ -158,6 +158,8 @@ sub add_expected_base
 		'/bsd.rd' => 1,
 		'/bsd.sp' => 1,
 		'/obsd' => 1,
+		'/etc/acme/letsencrypt-privkey.pem' => 1,
+		'/etc/acme/letsencrypt-staging-privkey.pem' => 1,
 		'/etc/fstab' => 1,
 		'/etc/hosts' => 1,
 		'/etc/installurl' => 1,
@@ -224,6 +226,7 @@ sub add_expected_rcctl
 			$self->{expected}{'/var/account/acct.3'} = 1;
 			$self->{expected}{'/var/account/savacct'} = 1;
 			$self->{expected}{'/var/account/usracct'} = 1;
+
 		} elsif ('apmd' eq $_) {
 			$self->{expected}{'/etc/apm'} = 1;
 			$self->{expected}{'/etc/apm/suspend'} = 1;
@@ -237,9 +240,19 @@ sub add_expected_rcctl
 			$self->{expected}{'/etc/hotplug/attach'} = 1;
 			$self->{expected}{'/etc/hotplug/detach'} = 1;
 
+		} elsif ('iked' eq $_) {
+			$self->{ignored}{'/etc/iked/pubkeys'} = 1;
+
+		} elsif ('isakmpd' eq $_) {
+			$self->{ignored}{'/etc/isakmpd/pubkeys'} = 1;
+
 		} elsif ('lpd' eq $_) {
 			$self->{expected}{'/etc/printcap'} = 1;
 			$self->{ignored}{'/var/spool/output/lpd'} = 1;
+
+		} elsif ('nsd' eq $_) {
+			$self->{ignored}{'/var/nsd/run'} = 1;
+			$self->{ignored}{'/var/nsd/zones'} = 1;
 
 		} elsif ('smtpd' eq $_) {
 			$self->{expected}{'/etc/mail/aliases.db'} = 1;
