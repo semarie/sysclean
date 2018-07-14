@@ -41,18 +41,18 @@ The options are as follows:
 > **sysclean**
 > will not exclude filenames used by installed packages from output.
 
-**-p**
-
-> Package mode.
-> **sysclean**
-> will output package names that are using obsolete files.
-
 **-i**
 
 > With ignored.
 > **sysclean**
 > will include filenames that are ignored by default, using
 > */etc/sysclean.ignore*.
+
+**-p**
+
+> Package mode.
+> **sysclean**
+> will output package names that are using obsolete files.
 
 # ENVIRONMENT
 
@@ -123,4 +123,4 @@ in 2016.
 was written by
 Sebastien Marie &lt;[semarie@online.fr](mailto:semarie@online.fr)&gt;.
 
-OpenBSD 6.2 - June 18, 2017
+OpenBSD 6.3 - July 14, 2018

@@ -1,6 +1,6 @@
 .\"	$OpenBSD$
 .\"
-.\" Copyright (c) 2016-2017 Sebastien Marie <semarie@online.fr>
+.\" Copyright (c) 2016-2018 Sebastien Marie <semarie@online.fr>
 .\"
 .\" Permission to use, copy, modify, and distribute this software for any
 .\" purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd June 18, 2017
+.Dd Jul 14, 2018
 .Dt SYSCLEAN 8
 .Os
 .Sh NAME
@@ -52,15 +52,15 @@ The options are as follows:
 All files mode.
 .Nm
 will not exclude filenames used by installed packages from output.
-.It Fl p
-Package mode.
-.Nm
-will output package names that are using obsolete files.
 .It Fl i
 With ignored.
 .Nm
 will include filenames that are ignored by default, using
 .Pa /etc/sysclean.ignore .
+.It Fl p
+Package mode.
+.Nm
+will output package names that are using obsolete files.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width "PKG_DBDIR"
