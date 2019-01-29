@@ -2,7 +2,7 @@
 #
 # $OpenBSD$
 #
-# Copyright (c) 2016-2017 Sebastien Marie <semarie@online.fr>
+# Copyright (c) 2016-2019 Sebastien Marie <semarie@online.fr>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -259,6 +259,9 @@ sub add_expected_rcctl
 
 		} elsif ('unbound' eq $_) {
 			$self->{expected}{'/var/unbound/db/root.key'} = 1;
+
+		} elsif ('unwind' eq $_) {
+			$self->{expected}{'/etc/unwind/trustanchor/root.key'} = 1;
 
 		} elsif ('xenodm' eq $_) {
 			$self->{ignored}{'/etc/X11/xenodm/authdir'} = 1;
