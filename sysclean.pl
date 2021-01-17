@@ -464,6 +464,21 @@ sub walk_sysclean
 {
 }
 
+package OpenBSD::PackingElement::Cwd;
+
+sub walk_sysclean
+{
+    use File::Basename;
+
+    my ($item, $pkgname, $sc) = @_;
+    my $path = $item->name;
+
+    do {
+	$sc->{expected}{$path} = 1;
+	$path = dirname($path);
+    } while ($path ne "/");
+}
+
 package OpenBSD::PackingElement::FileObject;
 sub walk_sysclean
 {
