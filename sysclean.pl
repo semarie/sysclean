@@ -97,7 +97,7 @@ sub init_ignored
 		'/dev' => 1,
 		'/home' => 1,
 		'/root' => 1,
-                '/tmp' => 1,
+		'/tmp' => 1,
 		'/usr/local' => 1, # remove ?
 		'/usr/obj' => 1,
 		'/usr/ports' => 1,
@@ -465,7 +465,6 @@ sub walk_sysclean
 }
 
 package OpenBSD::PackingElement::Cwd;
-
 sub walk_sysclean
 {
     use File::Basename;
