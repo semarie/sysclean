@@ -132,7 +132,12 @@ sub init
 	my ($self) = @_;
 
 	use OpenBSD::Pledge;
+	use OpenBSD::Unveil;
 
+	unveil('/', 'r');
+	unveil('/usr/bin/locate', 'x');
+	unveil('/usr/sbin/rcctl', 'x');
+	
 	pledge('rpath proc exec') || $self->err(1, "pledge");
 	$self->add_expected_base;
 	$self->add_expected_rcctl;
