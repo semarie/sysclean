@@ -104,18 +104,18 @@ sub init_ignored
 		'/usr/share/relink/kernel' => 1,
 		'/usr/src' => 1,
 		'/usr/xenocara' => 1,
-                '/usr/xobj' => 1,
+		'/usr/xobj' => 1,
 		'/var/backups' => 1,
 		'/var/cache' => 1,
 		'/var/cron' => 1,
 		'/var/db' => 1,
 		'/var/log' => 1,
-                '/var/mail' => 1,
+		'/var/mail' => 1,
 		'/var/run' => 1,
 		'/var/spool/smtpd' => 1,
 		'/var/sysmerge' => 1,
 		'/var/syspatch' => 1,
-                '/var/www/htdocs' => 1,
+		'/var/www/htdocs' => 1,
 		'/var/www/logs' => 1,
 		'/var/www/run' => 1,
 		'/var/www/tmp' => 1,
@@ -472,15 +472,15 @@ sub walk_sysclean
 package OpenBSD::PackingElement::Cwd;
 sub walk_sysclean
 {
-    use File::Basename;
+	use File::Basename;
 
-    my ($item, $pkgname, $sc) = @_;
-    my $path = $item->name;
+	my ($item, $pkgname, $sc) = @_;
+	my $path = $item->name;
 
-    do {
-	$sc->{expected}{$path} = 1;
-	$path = dirname($path);
-    } while ($path ne "/");
+	do {
+		$sc->{expected}{$path} = 1;
+		$path = dirname($path);
+	} while ($path ne "/");
 }
 
 package OpenBSD::PackingElement::FileObject;
