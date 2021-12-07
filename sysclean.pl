@@ -135,8 +135,8 @@ sub init
 	use OpenBSD::Unveil;
 
 	unveil('/', 'r');
-	unveil('/usr/bin/locate', 'x');
-	unveil('/usr/sbin/rcctl', 'x');
+	unveil('/usr/bin/locate', 'rx');
+	unveil('/usr/sbin/rcctl', 'rx');
 	
 	pledge('rpath proc exec') || $self->err(1, "pledge");
 	$self->add_expected_base;
