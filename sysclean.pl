@@ -164,6 +164,7 @@ sub add_expected_base
 		'/bsd' => 1,
 		'/bsd.booted' => 1,
 		'/bsd.mp' => 1,
+		'/bsd.upgrade' => 1,
 		'/bsd.rd' => 1,
 		'/bsd.sp' => 1,
 		'/obsd' => 1,
