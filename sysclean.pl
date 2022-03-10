@@ -131,8 +131,11 @@ sub init
 {
 	my ($self) = @_;
 
+	use OpenBSD::PackageInfo;
 	use OpenBSD::Pledge;
 	use OpenBSD::Unveil;
+
+	lock_db(0);
 
 	unveil('/', 'r');
 	unveil('/usr/bin/locate', 'rx');
