@@ -141,10 +141,6 @@ sub init
 	unveil('/usr/bin/locate', 'rx');
 	unveil('/usr/sbin/rcctl', 'rx');
 
-	# XXX workaround for unveil(2) bug
-	unveil('/usr/bin', 'r');
-	unveil('/usr/sbin', 'r');
-	
 	pledge('rpath proc exec') || $self->err(1, "pledge");
 	$self->add_expected_base;
 	$self->add_expected_rcctl;
