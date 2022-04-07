@@ -96,6 +96,7 @@ sub init_ignored
 	$self->{ignored} = {
 		'/dev' => 1,
 		'/home' => 1,
+		'/lost+found' => 1,
 		'/root' => 1,
 		'/tmp' => 1,
 		'/usr/local' => 1, # remove ?
