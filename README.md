@@ -8,7 +8,7 @@ SYSCLEAN(8) - System Manager's Manual
 
 **sysclean**
 \[**-a**&nbsp;|&nbsp;**-p**]
-\[**-i**]
+\[**-iz**]
 
 # DESCRIPTION
 
@@ -53,6 +53,12 @@ The options are as follows:
 > Package mode.
 > **sysclean**
 > will output package names that are using obsolete files.
+
+**-z**
+
+> NUL output mode.
+> **sysclean**
+> will output filenames or package names separated by NUL rather than newline.
 
 # ENVIRONMENT
 
@@ -123,4 +129,4 @@ in 2016.
 was written by
 Sebastien Marie &lt;[semarie@online.fr](mailto:semarie@online.fr)&gt;.
 
-OpenBSD 6.3 - July 14, 2018
+OpenBSD 7.1 - April 28, 2022

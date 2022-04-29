@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd Jul 14, 2018
+.Dd April 28, 2022
 .Dt SYSCLEAN 8
 .Os
 .Sh NAME
@@ -23,7 +23,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl a | p
-.Op Fl i
+.Op Fl iz
 .Sh DESCRIPTION
 .Nm
 is a
@@ -61,6 +61,10 @@ will include filenames that are ignored by default, using
 Package mode.
 .Nm
 will output package names that are using obsolete files.
+.It Fl z
+NUL output mode.
+.Nm
+will output filenames or package names separated by NUL rather than newline.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width "PKG_DBDIR"

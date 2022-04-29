@@ -66,7 +66,7 @@ sub new
 # print usage and exit
 sub usage
 {
-	print "usage: $0 [ -a | -p ] [-i]\n";
+	print "usage: $0 [ -a | -p ] [-iz]\n";
 	exit 1
 }
 
@@ -332,7 +332,7 @@ sub add_user_ignored
 # walk the filesystem. the method will call `find_sub' overriden method.
 sub walk
 {
-	my $self = shift;
+	my ($self, $sep) = @_;
 
 	use File::Find;
 
@@ -351,7 +351,7 @@ sub walk
 			}
 
 			# find_sub is defined per mode
-			$self->find_sub($_);
+			$self->find_sub($_, $sep);
 		}
 	    }, follow => 0, no_chdir => 1, }, '/');
 }
@@ -377,9 +377,9 @@ sub plist_reader
 
 sub find_sub
 {
-	my ($self, $filename) = @_;
+	my ($self, $filename, $sep) = @_;
 
-	print($filename, "\n");
+	print($filename, $sep);
 }
 
 package sysclean::files;
@@ -412,7 +412,7 @@ sub plist_reader
 
 sub find_sub
 {
-	my ($self, $filename) = @_;
+	my ($self, $filename, $sep) = @_;
 
 	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o) {
 
@@ -433,7 +433,7 @@ sub find_sub
 		}
 	}
 
-	print($filename, "\n");
+	print($filename, $sep);
 }
 
 package sysclean::packages;
@@ -451,13 +451,13 @@ sub plist_reader
 
 sub find_sub
 {
-	my ($self, $filename) = @_;
+	my ($self, $filename, $sep) = @_;
 
 	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o) {
 		my $wantlib = "$1$2";
 
 		for my $pkgname (@{$self->{used_libs}{$wantlib}}) {
-			print($filename, "\t", $pkgname, "\n")
+			print($filename, "\t", $pkgname, $sep)
 		}
 	}
 }
@@ -524,9 +524,9 @@ use Getopt::Std;
 
 my %options = ();	# program flags
 
-getopts("apih", \%options) || sysclean->usage;
+getopts("apizh", \%options) || sysclean->usage;
 sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
 sysclean->err(1, "need root privileges") if ($> != 0);
 
-sysclean->create(\%options)->walk;
+sysclean->create(\%options)->walk($options{z} ? "\0" : "\n");
