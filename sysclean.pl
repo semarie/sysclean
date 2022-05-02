@@ -369,7 +369,7 @@ sub plist_reader
 	return sub {
 	    my ($fh, $cont) = @_;
 	    while (<$fh>) {
-		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|extra|sample|bin|rcscript)\b/o || !m/^\@/o;
+		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
 		    &$cont($_);
 	    };
 	}
@@ -404,7 +404,7 @@ sub plist_reader
 	return sub {
 	    my ($fh, $cont) = @_;
 	    while (<$fh>) {
-		    next unless m/^\@(?:cwd|name|info|man|file|lib|shell|extra|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
+		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
 		    &$cont($_);
 	    };
 	}
