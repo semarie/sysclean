@@ -27,7 +27,9 @@ sub subclass
 {
 	my ($self, $options) = @_;
 	return 'sysclean::allfiles' if (defined $$options{a});
+	return 'sysclean::groups' if (defined $$options{g});
 	return 'sysclean::packages' if (defined $$options{p});
+	return 'sysclean::users' if (defined $$options{u});
 	return 'sysclean::files';
 }
 
@@ -40,7 +42,9 @@ sub create
 	my $mode_count = 0;
 
 	$mode_count++ if (defined $$options{a});
+	$mode_count++ if (defined $$options{g});
 	$mode_count++ if (defined $$options{p});
+	$mode_count++ if (defined $$options{u});
 	sysclean->usage if ($mode_count > 1);
 
 	return $base->subclass($options)->new($with_ignored);
@@ -66,7 +70,7 @@ sub new
 # print usage and exit
 sub usage
 {
-	print "usage: $0 [ -a | -p ] [-i]\n";
+	print "usage: $0 [ -a | -g | -p | -u ] [-i]\n";
 	exit 1
 }
 
@@ -436,6 +440,44 @@ sub find_sub
 	print($filename, "\n");
 }
 
+package sysclean::groups;
+use parent -norequire, qw(sysclean);
+
+sub add_expected_base
+{
+	# skip
+}
+
+sub add_expected_rcctl
+{
+	# skip
+}
+
+sub plist_reader
+{
+	return \&OpenBSD::PackingList::SharedItemsOnly;
+}
+
+sub walk
+{
+	my ($self) = @_;
+
+	use Archive::Tar;
+	my $tar = Archive::Tar->new;
+
+	$tar->read('/var/sysmerge/etc.tgz') || $self->err(1, "can't read sysmerge etc.tgz");
+
+	foreach (split(/\n/, $tar->get_content('./etc/group'))) {
+		$self->{expected_groups}{(split(/:/, $_))[0]} = 1;
+	}
+
+	while (my ($name, $hash, $gid)  = getgrent()) {
+		if (! $self->{expected_groups}{$name} && $gid < 1000) {
+			print($name, "\n")
+		}
+	}
+}
+
 package sysclean::packages;
 use parent -norequire, qw(sysclean);
 
@@ -458,6 +500,44 @@ sub find_sub
 
 		for my $pkgname (@{$self->{used_libs}{$wantlib}}) {
 			print($filename, "\t", $pkgname, "\n")
+		}
+	}
+}
+
+package sysclean::users;
+use parent -norequire, qw(sysclean);
+
+sub add_expected_base
+{
+	# skip
+}
+
+sub add_expected_rcctl
+{
+	# skip
+}
+
+sub plist_reader
+{
+	return \&OpenBSD::PackingList::SharedItemsOnly;
+}
+
+sub walk
+{
+	my ($self) = @_;
+
+	use Archive::Tar;
+	my $tar = Archive::Tar->new;
+
+	$tar->read('/var/sysmerge/etc.tgz') || $self->err(1, "can't read sysmerge etc.tgz");
+
+	foreach (split(/\n/, $tar->get_content('./etc/master.passwd'))) {
+		$self->{expected_users}{(split(/:/, $_))[0]} = 1;
+	}
+
+	while (my ($name, $hash, $uid)  = getpwent()) {
+		if (! $self->{expected_users}{$name} && $uid < 1000) {
+			print($name, "\n")
 		}
 	}
 }
@@ -514,6 +594,22 @@ sub walk_sysclean
 	push(@{$sc->{used_libs}{$item->name}}, $pkgname);
 }
 
+package OpenBSD::PackingElement::NewGroup;
+sub walk_sysclean
+{
+	my ($item, $pkgname, $sc) = @_;
+
+	$sc->{expected_groups}{$item->name} = 1;
+}
+
+package OpenBSD::PackingElement::NewUser;
+sub walk_sysclean
+{
+	my ($item, $pkgname, $sc) = @_;
+
+	$sc->{expected_users}{$item->name} = 1;
+}
+
 
 #
 # main program
@@ -524,7 +620,7 @@ use Getopt::Std;
 
 my %options = ();	# program flags
 
-getopts("apih", \%options) || sysclean->usage;
+getopts("agpuih", \%options) || sysclean->usage;
 sysclean->usage if (defined $options{h} || scalar(@ARGV) != 0);
 
 sysclean->err(1, "need root privileges") if ($> != 0);

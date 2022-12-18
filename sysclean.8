@@ -14,7 +14,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd Jul 14, 2018
+.Dd December 19, 2022
 .Dt SYSCLEAN 8
 .Os
 .Sh NAME
@@ -22,7 +22,7 @@
 .Nd list obsolete files between OpenBSD upgrades
 .Sh SYNOPSIS
 .Nm
-.Op Fl a | p
+.Op Fl a | g | p | u
 .Op Fl i
 .Sh DESCRIPTION
 .Nm
@@ -52,6 +52,10 @@ The options are as follows:
 All files mode.
 .Nm
 will not exclude filenames used by installed packages from output.
+.It Fl g
+Group mode.
+.Nm
+will list obsolete system groups.
 .It Fl i
 With ignored.
 .Nm
@@ -61,6 +65,10 @@ will include filenames that are ignored by default, using
 Package mode.
 .Nm
 will output package names that are using obsolete files.
+.It Fl u
+User mode.
+.Nm
+will list obsolete system users.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width "PKG_DBDIR"

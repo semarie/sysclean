@@ -7,7 +7,7 @@ SYSCLEAN(8) - System Manager's Manual
 # SYNOPSIS
 
 **sysclean**
-\[**-a**&nbsp;|&nbsp;**-p**]
+\[**-a**&nbsp;|&nbsp;**-g**&nbsp;|&nbsp;**-p**&nbsp;|&nbsp;**-u**]
 \[**-i**]
 
 # DESCRIPTION
@@ -41,6 +41,12 @@ The options are as follows:
 > **sysclean**
 > will not exclude filenames used by installed packages from output.
 
+**-g**
+
+> Group mode.
+> **sysclean**
+> will list obsolete system groups.
+
 **-i**
 
 > With ignored.
@@ -53,6 +59,12 @@ The options are as follows:
 > Package mode.
 > **sysclean**
 > will output package names that are using obsolete files.
+
+**-u**
+
+> User mode.
+> **sysclean**
+> will list obsolete system users.
 
 # ENVIRONMENT
 
@@ -123,4 +135,4 @@ in 2016.
 was written by
 Sebastien Marie &lt;[semarie@online.fr](mailto:semarie@online.fr)&gt;.
 
-OpenBSD 6.3 - July 14, 2018
+OpenBSD 7.2 - December 19, 2022
