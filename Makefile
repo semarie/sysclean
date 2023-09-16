@@ -12,7 +12,11 @@ realinstall:
 		${.CURDIR}/${SCRIPT} ${DESTDIR}${BINDIR}/sysclean
 
 README.md: sysclean.8
-	mandoc -T markdown sysclean.8 >$@
+	mandoc -T markdown sysclean.8 \
+	| sed	-e 's/&nbsp;/ /g' \
+		-e 's/&lt;/</g' \
+		-e 's/&gt;/>/g' \
+	>$@
 
 regress: run-regress-perl-syntax \
 	run-regress-man-lint \

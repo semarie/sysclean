@@ -7,7 +7,7 @@ SYSCLEAN(8) - System Manager's Manual
 # SYNOPSIS
 
 **sysclean**
-\[**-a**&nbsp;|&nbsp;**-p**]
+\[**-a** | **-p**]
 \[**-i**]
 
 # DESCRIPTION
@@ -121,6 +121,6 @@ in 2016.
 
 **sysclean**
 was written by
-Sebastien Marie &lt;[semarie@online.fr](mailto:semarie@online.fr)&gt;.
+Sebastien Marie <[semarie@online.fr](mailto:semarie@online.fr)>.
 
-OpenBSD 6.3 - July 14, 2018
+OpenBSD 7.3 - July 14, 2018
