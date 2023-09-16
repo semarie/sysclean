@@ -34,7 +34,11 @@ run-regress-man-lint:
 
 run-regress-man-readme:
 	@echo TEST: README.md sync
-	@mandoc -T markdown sysclean.8 | diff -q README.md -
+	@mv README.md README.md.orig
+	@${MAKE} README.md
+	@mv README.md README.md.new
+	@mv README.md.orig README.md
+	@diff -q README.md README.md.new ; rm README.md.new
 
 run-regress-man-date:
 	@echo TEST: man page date
