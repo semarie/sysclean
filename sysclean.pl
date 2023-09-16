@@ -2,7 +2,7 @@
 #
 # $OpenBSD$
 #
-# Copyright (c) 2016-2019 Sebastien Marie <semarie@online.fr>
+# Copyright (c) 2016-2023 Sebastien Marie <semarie@kapouay.eu.org>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -17,25 +17,21 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-use strict;
-use warnings;
+use v5.36;
 
 package sysclean;
 
 # return subclass according to options
-sub subclass
+sub subclass($self, $options)
 {
-	my ($self, $options) = @_;
 	return 'sysclean::allfiles' if (defined $$options{a});
 	return 'sysclean::packages' if (defined $$options{p});
 	return 'sysclean::files';
 }
 
 # choose class for mode, depending on %options
-sub create
+sub create($base, $options)
 {
-	my ($base, $options) = @_;
-
 	my $with_ignored = !defined $$options{i};
 	my $mode_count = 0;
 
@@ -47,9 +43,8 @@ sub create
 }
 
 # constructor
-sub new
+sub new($class, $with_ignored)
 {
-	my ($class, $with_ignored) = @_;
 	my $self = bless {}, $class;
 
 	$self->init_ignored;
@@ -64,35 +59,29 @@ sub new
 }
 
 # print usage and exit
-sub usage
+sub usage()
 {
 	print "usage: $0 [ -a | -p ] [-i]\n";
 	exit 1
 }
 
 # print error and exit
-sub err
+sub err($self, $exitcode, @rest)
 {
-	my ($self, $exitcode, @rest) = @_;
-
 	print STDERR "$0: error: @rest\n";
 
 	exit $exitcode;
 }
 
 # print warning
-sub warn
+sub warn($self, @rest)
 {
-	my ($self, @rest) = @_;
-
 	print STDERR "$0: warn: @rest\n";
 }
 
 # initial list of ignored files and directories
-sub init_ignored
+sub init_ignored($self)
 {
-	my $self = shift;
-
 	$self->{ignored} = {
 		'/dev' => 1,
 		'/home' => 1,
@@ -127,10 +116,8 @@ sub init_ignored
 	}
 }
 
-sub init
+sub init($self)
 {
-	my ($self) = @_;
-
 	use OpenBSD::PackageInfo;
 	use OpenBSD::Pledge;
 	use OpenBSD::Unveil;
@@ -151,10 +138,8 @@ sub init
 
 # add expected files from base. call `add_expected_base_one' overriden method.
 # WARNING: `expected' attribute is overrided
-sub add_expected_base
+sub add_expected_base($self)
 {
-	my $self = shift;
-
 	# simple files expected (and not in locate databases)
 	$self->{expected} = {
 		'/' => 1,
@@ -208,18 +193,14 @@ sub add_expected_base
 }
 
 # default method for manipulated one expected filename of base.
-sub add_expected_base_one
+sub add_expected_base_one($self, $filename)
 {
-	my ($self, $filename) = @_;
-
 	$self->{expected}{$filename} = 1;
 }
 
 # add expected files from enabled daemons and services.
-sub add_expected_rcctl
+sub add_expected_rcctl($self)
 {
-	my $self = shift;
-
 	open(my $cmd, '-|', 'rcctl', 'ls', 'on') ||
 		$self->err(1, "can't read enabled daemons and services");
 	while (<$cmd>) {
@@ -278,10 +259,8 @@ sub add_expected_rcctl
 
 # add expected information from ports. the method will call `plist_reader'
 # overriden method.
-sub add_expected_ports_info
+sub add_expected_ports_info($self)
 {
-	my $self = shift;
-
 	use OpenBSD::PackageInfo;
 	use OpenBSD::PackingList;
 
@@ -293,10 +272,8 @@ sub add_expected_ports_info
 }
 
 # add user-defined `ignored' files
-sub add_user_ignored
+sub add_user_ignored($self, $conffile)
 {
-	my ($self, $conffile) = @_;
-
 	open(my $fh, "<", $conffile) || return 0;
 	while (<$fh>) {
 		chomp;
@@ -328,10 +305,8 @@ sub add_user_ignored
 }
 
 # walk the filesystem. the method will call `find_sub' overriden method.
-sub walk
+sub walk($self)
 {
-	my $self = shift;
-
 	use File::Find;
 
 	find({ wanted =>
@@ -362,10 +337,9 @@ sub walk
 package sysclean::allfiles;
 use parent -norequire, qw(sysclean);
 
-sub plist_reader
+sub plist_reader($self)
 {
-	return sub {
-	    my ($fh, $cont) = @_;
+	return sub ($fh, $cont) {
 	    while (<$fh>) {
 		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
 		    &$cont($_);
@@ -373,10 +347,8 @@ sub plist_reader
 	}
 }
 
-sub find_sub
+sub find_sub($self, $filename)
 {
-	my ($self, $filename) = @_;
-
 	print($filename, "\n");
 }
 
@@ -385,10 +357,8 @@ use parent -norequire, qw(sysclean);
 
 use OpenBSD::LibSpec;
 
-sub add_expected_base_one
+sub add_expected_base_one($self, $filename)
 {
-	my ($self, $filename) = @_;
-
 	$self->SUPER::add_expected_base_one($filename);
 
 	# track libraries (should not contains duplicate)
@@ -397,10 +367,9 @@ sub add_expected_base_one
 	}
 }
 
-sub plist_reader
+sub plist_reader($self)
 {
-	return sub {
-	    my ($fh, $cont) = @_;
+	return sub ($fh, $cont) {
 	    while (<$fh>) {
 		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
 		    &$cont($_);
@@ -408,10 +377,8 @@ sub plist_reader
 	}
 }
 
-sub find_sub
+sub find_sub($self, $filename)
 {
-	my ($self, $filename) = @_;
-
 	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o) {
 
 		if (exists($self->{used_libs}{"$1$2"})) {
@@ -437,20 +404,18 @@ sub find_sub
 package sysclean::packages;
 use parent -norequire, qw(sysclean);
 
-sub add_expected_rcctl
+sub add_expected_rcctl($self)
 {
 	# skip add_expected_rcctl: it shouldn't contain libraries
 }
 
-sub plist_reader
+sub plist_reader($self)
 {
 	return \&OpenBSD::PackingList::DependOnly;
 }
 
-sub find_sub
+sub find_sub($self, $filename) 
 {
-	my ($self, $filename) = @_;
-
 	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o) {
 		my $wantlib = "$1$2";
 
@@ -466,16 +431,15 @@ sub find_sub
 #
 
 package OpenBSD::PackingElement;
-sub walk_sysclean
+sub walk_sysclean($item, $pkgname, $sc)
 {
 }
 
 package OpenBSD::PackingElement::Cwd;
-sub walk_sysclean
+sub walk_sysclean($item, $pkgname, $sc)
 {
 	use File::Basename;
 
-	my ($item, $pkgname, $sc) = @_;
 	my $path = $item->name;
 
 	do {
@@ -485,9 +449,8 @@ sub walk_sysclean
 }
 
 package OpenBSD::PackingElement::FileObject;
-sub walk_sysclean
+sub walk_sysclean($item, $pkgname, $sc)
 {
-	my ($item, $pkgname, $sc) = @_;
 	my $filename = $item->fullname;
 
 	# link: /usr/local/lib/X11/app-defaults/ -> /etc/X11/app-defaults/
@@ -497,18 +460,14 @@ sub walk_sysclean
 }
 
 package OpenBSD::PackingElement::Sampledir;
-sub walk_sysclean
+sub walk_sysclean($item, $pkgname, $sc)
 {
-	my ($item, $pkgname, $sc) = @_;
-
 	$sc->{ignored}{$item->fullname} = 1;
 }
 
 package OpenBSD::PackingElement::Wantlib;
-sub walk_sysclean
+sub walk_sysclean($item, $pkgname, $sc)
 {
-	my ($item, $pkgname, $sc) = @_;
-
 	push(@{$sc->{used_libs}{$item->name}}, $pkgname);
 }
 
