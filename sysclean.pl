@@ -178,8 +178,6 @@ sub add_expected_base
 		'/etc/kbdtype' => 1,
 		'/etc/ssh/ssh_host_rsa_key' => 1,
 		'/etc/ssh/ssh_host_rsa_key.pub' => 1,
-		'/etc/ssh/ssh_host_dsa_key' => 1,
-		'/etc/ssh/ssh_host_dsa_key.pub' => 1,
 		'/etc/ssh/ssh_host_ecdsa_key' => 1,
 		'/etc/ssh/ssh_host_ecdsa_key.pub' => 1,
 		'/etc/ssh/ssh_host_ed25519_key' => 1,
