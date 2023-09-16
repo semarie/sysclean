@@ -7,8 +7,8 @@ SYSCLEAN(8) - System Manager's Manual
 # SYNOPSIS
 
 **sysclean**
-\[**-a** | **-p**]
-\[**-i**]
+[**-a** | **-p**]
+[**-i**]
 
 # DESCRIPTION
 

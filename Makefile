@@ -16,6 +16,7 @@ README.md: sysclean.8
 	| sed	-e 's/&nbsp;/ /g' \
 		-e 's/&lt;/</g' \
 		-e 's/&gt;/>/g' \
+		-e 's/\\\[/[/g' \
 	>$@
 
 regress: run-regress-perl-syntax \
