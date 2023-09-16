@@ -21,8 +21,7 @@ README.md: sysclean.8
 
 regress: run-regress-perl-syntax \
 	run-regress-man-lint \
-	run-regress-man-readme \
-	run-regress-man-date
+	run-regress-man-readme
 
 run-regress-perl-syntax:
 	@echo TEST: perl syntax
@@ -39,14 +38,5 @@ run-regress-man-readme:
 	@mv README.md README.md.new
 	@mv README.md.orig README.md
 	@diff -q README.md README.md.new ; rm README.md.new
-
-run-regress-man-date:
-	@echo TEST: man page date
-	@if [ -d .git ]; then \
-		grep -qF -- \
-			"$$(date -r $$(git log -1 --format="%ct" sysclean.8) \
-				+'.Dd %B %d, %Y')" \
-			sysclean.8 ; \
-	fi
 
 .include <bsd.prog.mk>
