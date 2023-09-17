@@ -59,7 +59,7 @@ sub new($class, $with_ignored)
 }
 
 # print usage and exit
-sub usage()
+sub usage($self)
 {
 	print "usage: $0 [ -a | -p ] [-i]\n";
 	exit 1
