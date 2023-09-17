@@ -291,6 +291,9 @@ sub add_expected_users($self)
 
 		my $user = join(':', ($name, $uid, $gname, $home, $shell));
 		$self->{users}{$user} = 1;
+
+		my $short = join(':', ($name, $uid));
+		$self->{users}{$short} = 1;
 	}
 
 }
@@ -406,8 +409,15 @@ sub walk_users($self)
 		    !(exists($self->{users}{$user}) ||
 		      exists($self->{users}{$user_gid})) ) {
 
-			# not expected user
-			print('@user ', $user, "\n");
+			my $short = join(':', ($name, $uid));
+
+			if (exists($self->{users}{$short})) {
+				# user exists, but it seems modified
+				print('@user ', $user, " (modified)\n");
+			} else {			
+				# not expected user
+				print('@user ', $user, "\n");
+			}
 		}
 	}
 	endpwent();
