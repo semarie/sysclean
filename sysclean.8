@@ -1,6 +1,6 @@
 .\"	$OpenBSD$
 .\"
-.\" Copyright (c) 2016-2018 Sebastien Marie <semarie@online.fr>
+.\" Copyright (c) 2016-2023 Sebastien Marie <semarie@kapouay.eu.org>
 .\"
 .\" Permission to use, copy, modify, and distribute this software for any
 .\" purpose with or without fee is hereby granted, provided that the above
@@ -14,12 +14,12 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd April 10, 2023
+.Dd September 17, 2023
 .Dt SYSCLEAN 8
 .Os
 .Sh NAME
 .Nm sysclean
-.Nd list obsolete files between OpenBSD upgrades
+.Nd list obsolete elements between OpenBSD upgrades
 .Sh SYNOPSIS
 .Nm
 .Op Fl a | p
@@ -28,21 +28,21 @@
 .Nm
 is a
 .Xr perl 1
-script designed to help remove obsolete files between
+script designed to help remove obsolete files, users and groups, between
 .Ox
 upgrades.
 .Pp
 .Nm
-compares a reference root directory against the currently installed files,
+compares a reference installation against the currently installed elements,
 taking files from both the base system and packages into account.
 .Pp
 .Nm
-does not remove any files on the system.
-It only reports obsolete filenames or packages using out-of-date libraries.
+is a read-only tool.
+It does not remove anything on the system.
 .Pp
 By default,
 .Nm
-lists obsolete filenames on the system.
+lists obsolete filenames, users and groups on the system.
 It excludes any used dynamic libraries.
 It will report base libraries with versions newer than what's expected.
 .Pp
@@ -75,6 +75,13 @@ environment variable.
 .Bl -tag -width "/etc/sysclean.ignore"
 .It Pa /etc/sysclean.ignore
 Files to ignore, one per line, with absolute pathnames.
+.Pp
+A line starting with
+.Sq @user
+or
+.Sq @group
+will be interpreted as user or group to ignore.
+.Pp
 Shell globbing is supported in pathnames; see
 .Xr File::Glob 3p .
 If the pattern matches a directory,
@@ -124,4 +131,4 @@ in 2016.
 .An -nosplit
 .Nm
 was written by
-.An Sebastien Marie Aq Mt semarie@online.fr .
+.An Sebastien Marie Aq Mt semarie@kapouay.eu.org .

@@ -2,7 +2,7 @@ SYSCLEAN(8) - System Manager's Manual
 
 # NAME
 
-**sysclean** - list obsolete files between OpenBSD upgrades
+**sysclean** - list obsolete elements between OpenBSD upgrades
 
 # SYNOPSIS
 
@@ -15,21 +15,21 @@ SYSCLEAN(8) - System Manager's Manual
 **sysclean**
 is a
 perl(1)
-script designed to help remove obsolete files between
+script designed to help remove obsolete files, users and groups, between
 OpenBSD
 upgrades.
 
 **sysclean**
-compares a reference root directory against the currently installed files,
+compares a reference installation against the currently installed elements,
 taking files from both the base system and packages into account.
 
 **sysclean**
-does not remove any files on the system.
-It only reports obsolete filenames or packages using out-of-date libraries.
+is a read-only tool.
+It does not remove anything on the system.
 
 By default,
 **sysclean**
-lists obsolete filenames on the system.
+lists obsolete filenames, users and groups on the system.
 It excludes any used dynamic libraries.
 It will report base libraries with versions newer than what's expected.
 
@@ -69,6 +69,13 @@ The options are as follows:
 */etc/sysclean.ignore*
 
 > Files to ignore, one per line, with absolute pathnames.
+
+> A line starting with
+> '@user'
+> or
+> '@group'
+> will be interpreted as user or group to ignore.
+
 > Shell globbing is supported in pathnames; see
 > File::Glob(3p).
 > If the pattern matches a directory,
@@ -121,6 +128,6 @@ in 2016.
 
 **sysclean**
 was written by
-Sebastien Marie <[semarie@online.fr](mailto:semarie@online.fr)>.
+Sebastien Marie <[semarie@kapouay.eu.org](mailto:semarie@kapouay.eu.org)>.
 
-OpenBSD 7.3 - April 10, 2023
+OpenBSD 7.3 - September 17, 2023

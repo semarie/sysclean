@@ -133,6 +133,7 @@ sub init($self)
 	$self->add_expected_rcctl;
 
 	pledge('rpath') || $self->err(1, "pledge");
+	$self->add_expected_users;
 	$self->add_expected_ports_info;
 }
 
@@ -257,6 +258,43 @@ sub add_expected_rcctl($self)
 	close($cmd);
 }
 
+# add expected information for users/groups.
+sub add_expected_users($self)
+{
+	use Archive::Tar;
+
+	my $tar = Archive::Tar->new();
+	$tar->read(
+	    '/var/sysmerge/etc.tgz', {
+		limit => 2,
+		filter => './etc/{master.passwd,group}',
+	    }) || $self->err(1, "can't read /var/sysmerge/etc.tgz");
+
+	# add groups (and keep track of gid -> gname association)
+	my %groups = ();
+	my $group = $tar->get_content('./etc/group');
+	foreach my $entry (split(/\n/, $group)) {
+		my ($name, $passwd, $gid, $members) = split(/:/, $entry);
+		my $group = join(':', ($name, $gid));
+
+		$groups{$gid} = $name;
+		$self->{groups}{$group} = 1;
+	}
+
+	# add users
+	my $passwd = $tar->get_content('./etc/master.passwd');
+	foreach my $entry (split(/\n/, $passwd)) {
+		my ($name, $passwd, $uid, $gid, $class, $change, $expire,
+		    $gecos, $home, $shell) = split(/:/, $entry);
+	    	my $gname = $groups{$gid} || 
+	    	    $self->err(1, "unknown gid $gid in passwd '$name' entry");
+
+		my $user = join(':', ($name, $uid, $gname, $home, $shell));
+		$self->{users}{$user} = 1;
+	}
+
+}
+
 # add expected information from ports. the method will call `plist_reader'
 # overriden method.
 sub add_expected_ports_info($self)
@@ -271,7 +309,7 @@ sub add_expected_ports_info($self)
 	}
 }
 
-# add user-defined `ignored' files
+# add user-defined `ignored' elements
 sub add_user_ignored($self, $conffile)
 {
 	open(my $fh, "<", $conffile) || return 0;
@@ -296,6 +334,14 @@ sub add_user_ignored($self, $conffile)
 				$self->{ignored}{$filename} = 1;
 			}
 
+		} elsif (s/^\@user\s+//) {
+			# user entry
+			$self->{ignored_users}{$_} = 1;
+
+		} elsif (s/^\@group\s+//) {
+			# group entry
+			$self->{ignored_groups}{$_} = 1;
+		
 		} else {
 			$self->err(1, "$conffile: invalid entry: $_");
 		}
@@ -305,7 +351,7 @@ sub add_user_ignored($self, $conffile)
 }
 
 # walk the filesystem. the method will call `find_sub' overriden method.
-sub walk($self)
+sub walk_filesystem($self)
 {
 	use File::Find;
 
@@ -329,6 +375,60 @@ sub walk($self)
 	    }, follow => 0, no_chdir => 1, }, '/');
 }
 
+# walk all users in the system.
+sub walk_users($self)
+{
+	# walk users
+	while (my ($name, $passwd, $uid, $gid, $quota, $comment, $gecos, $home,
+	           $shell, $expire) = getpwent()) {
+
+		# only system users
+		next if ($uid >= 1000);
+
+		my $gname = getgrgid($gid);
+		my $user = join(':', ($name, $uid, $gname, $home, $shell));
+		my $user_gid = join(':', ($name, $uid, $gid, $home, $shell));
+
+		# check both $user and $user_gid,
+		# as @newuser in ports could be both.
+		if (!exists($self->{ignored_users}{$user}) &&
+		    !(exists($self->{users}{$user}) ||
+		      exists($self->{users}{$user_gid})) ) {
+
+			# not expected user
+			print('@user ', $user, "\n");
+		}
+	}
+	endpwent();
+}
+
+# walk all groups in the system.
+sub walk_groups($self)
+{
+	# walk groups
+	while (my ($name, $passwd, $gid, $members) = getgrent()) {
+		# only system groups
+		next if ($gid >= 1000);
+
+		my $group = join(':', ($name, $gid));
+
+		if (!exists($self->{ignored_groups}{$group}) &&
+		    !exists($self->{groups}{$group})) {
+
+			# not expected group
+			print('@group ', $group, "\n");
+		}
+	}
+	endgrent();
+}
+
+sub walk($self)
+{
+	$self->walk_users;
+	$self->walk_groups;
+	$self->walk_filesystem;
+}
+
 
 #
 # specialized versions
@@ -341,7 +441,7 @@ sub plist_reader($self)
 {
 	return sub ($fh, $cont) {
 	    while (<$fh>) {
-		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
+		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib|newuser|newgroup)\b/o || !m/^\@/o;
 		    &$cont($_);
 	    };
 	}
@@ -371,7 +471,7 @@ sub plist_reader($self)
 {
 	return sub ($fh, $cont) {
 	    while (<$fh>) {
-		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib)\b/o || !m/^\@/o;
+		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib|newuser|newgroup)\b/o || !m/^\@/o;
 		    &$cont($_);
 	    };
 	}
@@ -409,9 +509,19 @@ sub add_expected_rcctl($self)
 	# skip add_expected_rcctl: it shouldn't contain libraries
 }
 
+sub add_expected_users($self)
+{
+	# skip add_expected_users
+}
+
 sub plist_reader($self)
 {
 	return \&OpenBSD::PackingList::DependOnly;
+}
+
+sub walk($self)
+{
+	$self->walk_filesystem;
 }
 
 sub find_sub($self, $filename) 
@@ -457,6 +567,24 @@ sub walk_sysclean($item, $pkgname, $sc)
 	$filename =~ s|^/usr/local/lib/X11/app-defaults/|/etc/X11/app-defaults/|o;
 
 	$sc->{expected}{$filename} = 1;
+}
+
+package OpenBSD::PackingElement::NewGroup;
+sub walk_sysclean($item, $pkgname, $sc)
+{
+	my $group = join(':', map { $item->{$_} }
+	    qw(name gid));
+
+	$sc->{groups}{$group} = 1;
+}
+
+package OpenBSD::PackingElement::NewUser;
+sub walk_sysclean($item, $pkgname, $sc)
+{
+	my $user = join(':', map { $item->{$_} }
+	    qw(name uid group home shell));
+
+	$sc->{users}{$user} = 1;
 }
 
 package OpenBSD::PackingElement::Sampledir;
