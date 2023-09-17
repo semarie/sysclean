@@ -9,3 +9,7 @@
 
 # ignore files listed in changelist(5)
 @include "/etc/changelist"
+
+# ignore local system user/group
+@user _service:999:_service::/var/empty:/sbin/nologin
+@group _service:999
