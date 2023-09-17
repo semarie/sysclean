@@ -309,6 +309,17 @@ sub add_expected_ports_info($self)
 	}
 }
 
+# default plist_reader sub. could be overrided.
+sub plist_reader($self)
+{
+	return sub ($fh, $cont) {
+	    while (<$fh>) {
+		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib|newuser|newgroup)\b/o || !m/^\@/o;
+		    &$cont($_);
+	    };
+	}
+}
+
 # add user-defined `ignored' elements
 sub add_user_ignored($self, $conffile)
 {
@@ -437,16 +448,6 @@ sub walk($self)
 package sysclean::allfiles;
 use parent -norequire, qw(sysclean);
 
-sub plist_reader($self)
-{
-	return sub ($fh, $cont) {
-	    while (<$fh>) {
-		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib|newuser|newgroup)\b/o || !m/^\@/o;
-		    &$cont($_);
-	    };
-	}
-}
-
 sub find_sub($self, $filename)
 {
 	print($filename, "\n");
@@ -464,16 +465,6 @@ sub add_expected_base_one($self, $filename)
 	# track libraries (should not contains duplicate)
 	if ($filename =~ m|/lib([^/]+)\.so\.\d+\.\d+$|o) {
 		$self->{libs}{$1} = OpenBSD::Library->from_string($filename);
-	}
-}
-
-sub plist_reader($self)
-{
-	return sub ($fh, $cont) {
-	    while (<$fh>) {
-		    next unless m/^\@(?:cwd|name|info|fontdir|man|mandir|file|lib|shell|so|static-lib|extra|sample|bin|rcscript|wantlib|newuser|newgroup)\b/o || !m/^\@/o;
-		    &$cont($_);
-	    };
 	}
 }
 
