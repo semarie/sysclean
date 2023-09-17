@@ -123,4 +123,4 @@ in 2016.
 was written by
 Sebastien Marie <[semarie@online.fr](mailto:semarie@online.fr)>.
 
-OpenBSD 7.3 - July 14, 2018
+OpenBSD 7.3 - April 10, 2023
