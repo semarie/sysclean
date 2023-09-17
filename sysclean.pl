@@ -399,7 +399,7 @@ sub walk_users($self)
 		# only system users
 		next if ($uid >= 1000);
 
-		my $gname = getgrgid($gid);
+		my $gname = getgrgid($gid) || $gid;
 		my $user = join(':', ($name, $uid, $gname, $home, $shell));
 		my $user_gid = join(':', ($name, $uid, $gid, $home, $shell));
 
