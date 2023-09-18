@@ -83,7 +83,6 @@ sub warn($self, @rest)
 sub init_ignored($self)
 {
 	$self->{ignored} = {
-		'/dev' => 1,
 		'/home' => 1,
 		'/root' => 1,
 		'/tmp' => 1,
@@ -125,11 +124,13 @@ sub init($self)
 	lock_db(0);
 
 	unveil('/', 'r');
+	unveil('/dev/MAKEDEV', 'rx');
 	unveil('/usr/bin/locate', 'rx');
 	unveil('/usr/sbin/rcctl', 'rx');
 
 	pledge('rpath proc exec') || $self->err(1, "pledge");
 	$self->add_expected_base;
+	$self->add_expected_dev;
 	$self->add_expected_rcctl;
 
 	pledge('rpath') || $self->err(1, "pledge");
@@ -199,6 +200,66 @@ sub add_expected_base_one($self, $filename)
 	$self->{expected}{$filename} = 1;
 }
 
+# add expected files from /dev
+sub add_expected_dev($self)
+{
+	# set 'eo=echo' in env, to run MAKEDEV(8) in echo mode.
+	$ENV{'eo'} = 'echo';
+
+	open(my $dev, '-|', '/dev/MAKEDEV', 'all') ||
+		$self->err(1, "can't execute /dev/MAKEDEV");
+
+	while (<$dev>) {
+		chomp;
+		
+		# simplify command separator
+		s/\s*(;|&&|\|\|)\s*/;/g;
+
+		# iterate on commands
+		foreach my $commandline (split(/;/)) {
+			# split $commandline in words
+			my @args = split(/\s/, $commandline);
+			my $cmd = shift(@args);
+
+			# skip commands
+			next if ($cmd eq 'rm');
+			next if ($cmd eq 'chown');
+			next if ($cmd eq 'chgrp');
+			next if ($cmd eq 'chmod');
+			next if ($cmd eq '[');
+
+			if ($cmd eq 'mkdir') {
+				shift(@args); # skip -p
+
+				foreach my $dir (@args) {
+					$self->{expected}{"/dev/$dir"} = 1;
+				}
+
+			} elsif ($cmd eq 'ln') {
+				my ($option, $src, $dest) = @args;
+				$self->{expected}{"/dev/$dest"} = 1;
+
+			} elsif ($cmd eq 'mknod') {
+				foreach my $arg (@args) {
+					if ($arg eq '-m') {
+						shift(@args); # mode
+						next;
+					}
+
+					$self->{expected}{"/dev/$arg"} = 1;
+					shift(@args); # b|c
+					shift(@args); # major
+					shift(@args); # minor
+				}
+
+			} else {
+				$self->err(1, "unexpected command '$cmd' in MAKEDEV output");
+			}
+		}
+	}
+	close($dev);
+}
+
 # add expected files from enabled daemons and services.
 sub add_expected_rcctl($self)
 {
@@ -224,6 +285,10 @@ sub add_expected_rcctl($self)
 			$self->{expected}{'/etc/apm/powerup'} = 1;
 			$self->{expected}{'/etc/apm/powerdown'} = 1;
 
+		} elsif ('dhcpleased' eq $_) {
+			$self->{expected}{'/dev/dhcpleased.lock'} = 1;
+			$self->{expected}{'/dev/dhcpleased.sock'} = 1;
+
 		} elsif ('hotplugd' eq $_) {
 			$self->{expected}{'/etc/hotplug/attach'} = 1;
 			$self->{expected}{'/etc/hotplug/detach'} = 1;
@@ -242,6 +307,16 @@ sub add_expected_rcctl($self)
 			$self->{ignored}{'/var/nsd/run'} = 1;
 			$self->{ignored}{'/var/nsd/zones'} = 1;
 
+		} elsif ('resolvd' eq $_) {
+			$self->{expected}{'/dev/resolvd.lock'} = 1;
+
+		} elsif ('slaacd' eq $_) {
+			$self->{expected}{'/dev/slaacd.lock'} = 1;
+			$self->{expected}{'/dev/slaacd.sock'} = 1;
+
+		} elsif ('syslogd' eq $_) {
+			$self->{expected}{'/dev/log'} = 1;
+
 		} elsif ('smtpd' eq $_) {
 			$self->{expected}{'/etc/mail/aliases.db'} = 1;
 
@@ -249,6 +324,7 @@ sub add_expected_rcctl($self)
 			$self->{expected}{'/var/unbound/db/root.key'} = 1;
 
 		} elsif ('unwind' eq $_) {
+			$self->{expected}{'/dev/unwind.sock'} = 1;
 			$self->{expected}{'/etc/unwind/trustanchor/root.key'} = 1;
 
 		} elsif ('xenodm' eq $_) {
