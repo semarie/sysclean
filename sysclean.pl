@@ -128,12 +128,12 @@ sub init($self)
 	unveil('/usr/bin/locate', 'rx');
 	unveil('/usr/sbin/rcctl', 'rx');
 
-	pledge('rpath proc exec') || $self->err(1, "pledge");
+	pledge('rpath getpw proc exec') || $self->err(1, "pledge");
 	$self->add_expected_base;
 	$self->add_expected_dev;
 	$self->add_expected_rcctl;
 
-	pledge('rpath') || $self->err(1, "pledge");
+	pledge('rpath getpw') || $self->err(1, "pledge");
 	$self->add_expected_users;
 	$self->add_expected_ports_info;
 }
