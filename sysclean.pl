@@ -211,7 +211,7 @@ sub add_expected_dev($self)
 
 	while (<$dev>) {
 		chomp;
-		
+
 		# simplify command separator
 		s/\s*(;|&&|\|\|)\s*/;/g;
 
@@ -362,7 +362,7 @@ sub add_expected_users($self)
 	foreach my $entry (split(/\n/, $passwd)) {
 		my ($name, $passwd, $uid, $gid, $class, $change, $expire,
 		    $gecos, $home, $shell) = split(/:/, $entry);
-	    	my $gname = $groups{$gid} || 
+	    	my $gname = $groups{$gid} ||
 	    	    $self->err(1, "unknown gid $gid in passwd '$name' entry");
 
 		my $user = join(':', ($name, $uid, $gname, $home, $shell));
@@ -431,7 +431,7 @@ sub add_user_ignored($self, $conffile)
 		} elsif (s/^\@group\s+//) {
 			# group entry
 			$self->{ignored_groups}{$_} = 1;
-		
+
 		} else {
 			$self->err(1, "$conffile: invalid entry: $_");
 		}
@@ -490,7 +490,7 @@ sub walk_users($self)
 			if (exists($self->{users}{$short})) {
 				# user exists, but it seems modified
 				print('@user ', $user, " (modified)\n");
-			} else {			
+			} else {
 				# not expected user
 				print('@user ', $user, "\n");
 			}
@@ -601,7 +601,7 @@ sub walk($self)
 	$self->walk_filesystem;
 }
 
-sub find_sub($self, $filename) 
+sub find_sub($self, $filename)
 {
 	if ($filename =~ m|/lib([^/]*)\.so(\.\d+\.\d+)$|o) {
 		my $wantlib = "$1$2";
@@ -660,8 +660,11 @@ sub walk_sysclean($item, $pkgname, $sc)
 {
 	my $user = join(':', map { $item->{$_} }
 	    qw(name uid group home shell));
+	my $short = join(':', map { $item->{$_} }
+	    qw(name uid));
 
 	$sc->{users}{$user} = 1;
+	$sc->{users}{$short} = 1;
 }
 
 package OpenBSD::PackingElement::Sampledir;
