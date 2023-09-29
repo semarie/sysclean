@@ -206,7 +206,9 @@ sub add_expected_dev($self)
 	# set 'eo=echo' in env, to run MAKEDEV(8) in echo mode.
 	$ENV{'eo'} = 'echo';
 
-	open(my $dev, '-|', '/dev/MAKEDEV', 'all') ||
+	chdir('/dev') ||
+		$self->err(1, "can't chdir to /dev");
+	open(my $dev, '-|', './MAKEDEV', 'all') ||
 		$self->err(1, "can't execute /dev/MAKEDEV");
 
 	while (<$dev>) {
