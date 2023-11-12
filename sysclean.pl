@@ -121,7 +121,7 @@ sub init($self)
 	use OpenBSD::Pledge;
 	use OpenBSD::Unveil;
 
-	lock_db(0);
+	lock_db(1);
 
 	unveil('/', 'r');
 	unveil('/dev/MAKEDEV', 'rx');
