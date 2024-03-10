@@ -130,4 +130,4 @@ in 2016.
 was written by
 Sebastien Marie <[semarie@kapouay.eu.org](mailto:semarie@kapouay.eu.org)>.
 
-OpenBSD 7.3 - September 17, 2023
+OpenBSD 7.5 - March 10, 2024
