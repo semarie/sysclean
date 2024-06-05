@@ -285,6 +285,10 @@ sub add_expected_rcctl($self)
 			$self->{expected}{'/etc/apm/powerup'} = 1;
 			$self->{expected}{'/etc/apm/powerdown'} = 1;
 
+		} elsif ('dhcp6leased' eq $_) {
+			$self->{expected}{'/dev/dhcp6leased.lock'} = 1;
+			$self->{expected}{'/dev/dhcp6leased.sock'} = 1;
+
 		} elsif ('dhcpleased' eq $_) {
 			$self->{expected}{'/dev/dhcpleased.lock'} = 1;
 			$self->{expected}{'/dev/dhcpleased.sock'} = 1;
