@@ -78,7 +78,7 @@ DISTRIBUTED_FILES = \
 	${SCRIPT}
 	
 sysclean-${VERSION}.tar.gz: ${DISTRIBUTED_FILES}
-	chmod 644 ${DISTRIBUTED_FILES}
+	chmod a+rX ${DISTRIBUTED_FILES}
 	pax -w -zf "$@" -s ',^,sysclean-${VERSION}/,' ${DISTRIBUTED_FILES}
 
 .endif
