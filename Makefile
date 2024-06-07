@@ -63,4 +63,24 @@ run-regress-man-date:
 		echo "unchecked" ; \
 	fi
 
+.if !defined(VERSION)
+release:
+	@echo "error: please define VERSION"; false
+
+.else
+release: sysclean-${VERSION}.tar.gz
+
+DISTRIBUTED_FILES = \
+	Makefile \
+	README.md \
+	sysclean.ignore \
+	${MAN} \
+	${SCRIPT}
+	
+sysclean-${VERSION}.tar.gz: ${DISTRIBUTED_FILES}
+	chmod 644 ${DISTRIBUTED_FILES}
+	pax -w -zf "$@" -s ',^,sysclean-${VERSION}/,' ${DISTRIBUTED_FILES}
+
+.endif
+
 .include <bsd.prog.mk>
