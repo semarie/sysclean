@@ -2,7 +2,7 @@
 #
 # $OpenBSD$
 #
-# Copyright (c) 2016-2023 Sebastien Marie <semarie@kapouay.eu.org>
+# Copyright (c) 2016-2025 Sebastien Marie <semarie@kapouay.eu.org>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -369,7 +369,7 @@ sub add_expected_users($self)
 	    	my $gname = $groups{$gid} ||
 	    	    $self->err(1, "unknown gid $gid in passwd '$name' entry");
 
-		my $user = join(':', ($name, $uid, $gname, $home, $shell));
+		my $user = join(':', ($name, $uid, $gname, $class, $home, $shell));
 		$self->{users}{$user} = 1;
 
 		my $short = join(':', ($name, $uid));
@@ -473,15 +473,15 @@ sub walk_filesystem($self)
 sub walk_users($self)
 {
 	# walk users
-	while (my ($name, $passwd, $uid, $gid, $quota, $comment, $gecos, $home,
+	while (my ($name, $passwd, $uid, $gid, $quota, $class, $gecos, $home,
 	           $shell, $expire) = getpwent()) {
 
 		# only system users
 		next if ($uid >= 1000);
 
 		my $gname = getgrgid($gid) || $gid;
-		my $user = join(':', ($name, $uid, $gname, $home, $shell));
-		my $user_gid = join(':', ($name, $uid, $gid, $home, $shell));
+		my $user = join(':', ($name, $uid, $gname, $class, $home, $shell));
+		my $user_gid = join(':', ($name, $uid, $gid, $class, $home, $shell));
 
 		# check both $user and $user_gid,
 		# as @newuser in ports could be both.
@@ -663,7 +663,7 @@ package OpenBSD::PackingElement::NewUser;
 sub walk_sysclean($item, $pkgname, $sc)
 {
 	my $user = join(':', map { $item->{$_} }
-	    qw(name uid group home shell));
+	    qw(name uid group class home shell));
 	my $short = join(':', map { $item->{$_} }
 	    qw(name uid));
 
