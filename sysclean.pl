@@ -153,6 +153,8 @@ sub add_expected_base($self)
 		'/bsd.rd' => 1,
 		'/bsd.sp' => 1,
 		'/obsd' => 1,
+		'/dev/rootdisk' => 1,
+		'/dev/rrootdisk' => 1,
 		'/etc/acme/letsencrypt-privkey.pem' => 1,
 		'/etc/acme/letsencrypt-staging-privkey.pem' => 1,
 		'/etc/fstab' => 1,
