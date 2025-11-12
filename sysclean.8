@@ -116,6 +116,13 @@ Obtain a list of all outdated files (including used libraries):
 /usr/lib/libc.so.83.0
 /usr/lib/libc.so.84.1
 .Ed
+.Pp
+Obtain a list of users and groups that can safely be removed (from ports or base):
+.Bd -literal -offset indent
+# sysclean -a
+@user _mpd:560:_mpd::/var/spool/mpd:/sbin/nologin
+@group _mpd:560
+.Ed
 .Sh SEE ALSO
 .Xr pkg_info 1 ,
 .Xr sysmerge 8
