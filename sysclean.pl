@@ -374,7 +374,14 @@ sub add_expected_users($self)
 		my $user = join(':', ($name, $uid, $gname, $class, $home, $shell));
 		$self->{users}{$user} = 1;
 
-		$self->{user_fields}{$name} = { gid => $gid, group => $gname, class => $class, home => $home, shell => $shell };
+		$self->{user_fields}{$name} = {
+		    gid => $gid,
+		    group => $gname,
+		    class => $class,
+		    home => $home,
+		    shell => $shell,
+		};
+
 		my $short = join(':', ($name, $uid));
 		$self->{users}{$short} = 1;
 	}
@@ -498,12 +505,17 @@ sub walk_users($self)
 				# user exists, but it seems modified, compare fields
 				my @changed = ();
 				my $uf = $self->{user_fields}{$name};
-				push @changed, "gid is $gid, should be $uf->{gid}" if (defined $uf->{gid} and $gid != $uf->{gid});
-				push @changed, "group is $gname, should be $uf->{group}" if (defined $uf->{group} and $gname ne $uf->{group});
-				push @changed, "class is '$class', should be '$uf->{class}'" if ($class ne $uf->{class});
-				push @changed, "homedir is $home, should be $uf->{home}" if ($home ne $uf->{home});
-				push @changed, "shell is $shell, should be $uf->{shell}" if ($shell ne $uf->{shell});
-				print('@user ', $user, " => ", join(' / ', @changed),"\n");
+				push @changed, "gid is $gid, should be $uf->{gid}"
+				    if (defined $uf->{gid} and $gid != $uf->{gid});
+				push @changed, "group is $gname, should be $uf->{group}"
+				    if (defined $uf->{group} and $gname ne $uf->{group});
+				push @changed, "class is '$class', should be '$uf->{class}'"
+				    if ($class ne $uf->{class});
+				push @changed, "homedir is $home, should be $uf->{home}"
+				    if ($home ne $uf->{home});
+				push @changed, "shell is $shell, should be $uf->{shell}"
+				    if ($shell ne $uf->{shell});
+				print('@user ', $user, " => ", join(' / ', @changed), "\n");
 			} else {
 				# not expected user
 				print('@user ', $user, "\n");
@@ -679,7 +691,11 @@ sub walk_sysclean($item, $pkgname, $sc)
 
 	$sc->{users}{$user} = 1;
 	$sc->{users}{$short} = 1;
-	$sc->{user_fields}{$item->{name}} = { class => $item->{class}, home => $item->{home}, shell => $item->{shell} };
+	$sc->{user_fields}{$item->{name}} = {
+	    class => $item->{class},
+	    home => $item->{home},
+	    shell => $item->{shell},
+        };
 	# sometimes, the group field in the PLIST is a gid, sometimes a groupname...
 	if ($item->{group} =~ m|^\d+$|) {
 		$sc->{user_fields}{$item->{name}}{gid} = $item->{group};
