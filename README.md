@@ -109,6 +109,13 @@ Obtain a list of all outdated files (including used libraries):
 	/usr/lib/libc.so.83.0
 	/usr/lib/libc.so.84.1
 
+Obtain a list of users and groups that can safely be removed
+(from ports or base):
+
+	# sysclean
+	@user _mpd:560:_mpd::/var/spool/mpd:/sbin/nologin
+	@group _mpd:560
+
 # SEE ALSO
 
 pkg\_info(1),
@@ -130,4 +137,4 @@ in 2016.
 was written by
 Sebastien Marie <[semarie@kapouay.eu.org](mailto:semarie@kapouay.eu.org)>.
 
-OpenBSD 7.5 - March 10, 2024
+OpenBSD 7.8 - March 10, 2024 - SYSCLEAN(8)
