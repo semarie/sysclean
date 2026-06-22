@@ -183,6 +183,8 @@ sub add_expected_base($self)
 		'/var/account/acct.3' => 1,
 		'/var/account/savacct' => 1,
 		'/var/account/usracct' => 1,
+		'/var/dbupdate/in-SHA256' => 1,
+		'/var/dbupdate/out-SHA256.sig' => 1,
 	};
 
 	# additionnal expected files, using pattern
